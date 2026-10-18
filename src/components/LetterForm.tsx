@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { MAX_MESSAGE_LENGTH, MAX_NAME_LENGTH, THEMES, getTheme } from "@/lib/catalog";
 import type { LetterDraft, LetterTheme } from "@/types/bouquet";
+import { MusicPicker } from "./MusicPicker";
 
 interface LetterFormProps {
   value: LetterDraft;
@@ -116,6 +117,8 @@ export function LetterForm({ value, onChange, errors = {} }: LetterFormProps) {
           {remaining} characters left
         </p>
       </div>
+
+      <MusicPicker value={value.music} onChange={(music) => set("music", music)} />
     </motion.div>
   );
 }

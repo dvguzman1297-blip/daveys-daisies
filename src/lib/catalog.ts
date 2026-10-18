@@ -3,6 +3,8 @@ import type {
   FlowerDefinition,
   FlowerId,
   LetterTheme,
+  MusicTrack,
+  MusicTrackId,
   ThemeDefinition,
   VaseDefinition,
   VaseStyle,
@@ -90,6 +92,73 @@ export const PRESETS: BouquetPreset[] = [
       { id: "babys-breath", count: 2 },
     ],
   },
+  {
+    id: "market-morning",
+    name: "Market Morning",
+    description: "Fresh from the flower stall, wrapped in newsprint",
+    vase: "newspaper",
+    flowers: [
+      { id: "sunflower", count: 3 },
+      { id: "tulip", count: 3 },
+      { id: "daisy", count: 3 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
+  {
+    id: "farmhouse-jar",
+    name: "Farmhouse Jar",
+    description: "Daisies and lavender in a twine-tied mason jar",
+    vase: "mason",
+    flowers: [
+      { id: "daisy", count: 5 },
+      { id: "lavender", count: 3 },
+      { id: "babys-breath", count: 3 },
+    ],
+  },
+  {
+    id: "lilac-love",
+    name: "Lilac Love",
+    description: "Lavender and pink tulips in soft lilac tissue",
+    vase: "tissue",
+    flowers: [
+      { id: "lavender", count: 5 },
+      { id: "tulip", count: 4 },
+      { id: "babys-breath", count: 3 },
+    ],
+  },
+  {
+    id: "cottage-pitcher",
+    name: "Cottage Pitcher",
+    description: "A cottage-garden mix in a painted pitcher",
+    vase: "pitcher",
+    flowers: [
+      { id: "rose", count: 3 },
+      { id: "daisy", count: 4 },
+      { id: "tulip", count: 3 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
+  {
+    id: "picnic-basket",
+    name: "Picnic Basket",
+    description: "Sunflowers and daisies for a sunny afternoon",
+    vase: "basket",
+    flowers: [
+      { id: "sunflower", count: 4 },
+      { id: "daisy", count: 5 },
+      { id: "lavender", count: 3 },
+    ],
+  },
+  {
+    id: "just-because",
+    name: "Just Because",
+    description: "A small, sweet hello — no reason needed",
+    vase: "newspaper",
+    flowers: [
+      { id: "tulip", count: 3 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
 ];
 
 export const VASES: VaseDefinition[] = [
@@ -101,6 +170,82 @@ export const VASES: VaseDefinition[] = [
   { id: "mason", name: "Mason Jar" },
   { id: "pitcher", name: "Ceramic Pitcher" },
   { id: "basket", name: "Woven Basket" },
+];
+
+const MACLEOD_CREDIT = (title: string) =>
+  `"${title}" Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 3.0`;
+const CC_BY_3 = "https://creativecommons.org/licenses/by/3.0/";
+
+/**
+ * Background music. Every recording is public domain or CC BY 3.0, sourced
+ * from Wikimedia Commons. Files live in /public/music.
+ */
+export const MUSIC: MusicTrack[] = [
+  {
+    id: "clair-de-lune",
+    title: "Clair de Lune",
+    subtitle: "Debussy · U.S. Air Force Band, Wright Brass",
+    mood: "Dreamy",
+    src: "/music/clair-de-lune.mp3",
+    credit: "Performed by the Wright Brass, U.S. Air Force Band of Flight (public domain)",
+    license: "Public domain",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Clair_de_Lune_-_Wright_Brass_-_United_States_Air_Force_Band_of_Flight.mp3",
+  },
+  {
+    id: "liebestraum",
+    title: "Liebestraum No. 3",
+    subtitle: "Liszt · Wilhelm Backhaus, 1923",
+    mood: "Vintage & tender",
+    src: "/music/liebestraum.mp3",
+    credit: "Performed by Wilhelm Backhaus, recorded 1923 (public domain)",
+    license: "Public domain",
+    sourceUrl:
+      "https://commons.wikimedia.org/wiki/File:PDP-CH_-_Wilhelm_Backhaus_-_Liebestraum_No._3_in_A-flat_major,_S.541-3_(Liszt)_-_Hmv-d788-05754.flac",
+  },
+  {
+    id: "canon-in-d",
+    title: "Canon in D",
+    subtitle: "Pachelbel · Kevin MacLeod",
+    mood: "Wedding classic",
+    src: "/music/canon-in-d.mp3",
+    credit: MACLEOD_CREDIT("Canon in D Major"),
+    license: "CC BY 3.0",
+    licenseUrl: CC_BY_3,
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Canon_in_D_Major_(ISRC_USUAN1100301).mp3",
+  },
+  {
+    id: "gymnopedie",
+    title: "Gymnopédie No. 1",
+    subtitle: "Satie · Kevin MacLeod",
+    mood: "Soft & calm",
+    src: "/music/gymnopedie.mp3",
+    credit: MACLEOD_CREDIT("Gymnopedie No. 1"),
+    license: "CC BY 3.0",
+    licenseUrl: CC_BY_3,
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Gymnopedie_No._1_(ISRC_USUAN1100787).mp3",
+  },
+  {
+    id: "love-song",
+    title: "Love Song",
+    subtitle: "Kevin MacLeod",
+    mood: "Hopeful",
+    src: "/music/love-song.mp3",
+    credit: MACLEOD_CREDIT("Love Song"),
+    license: "CC BY 3.0",
+    licenseUrl: CC_BY_3,
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Love_Song_(ISRC_USUAN1100170).mp3",
+  },
+  {
+    id: "fairytale-waltz",
+    title: "Fairytale Waltz",
+    subtitle: "Kevin MacLeod",
+    mood: "Whimsical",
+    src: "/music/fairytale-waltz.mp3",
+    credit: MACLEOD_CREDIT("Fairytale Waltz"),
+    license: "CC BY 3.0",
+    licenseUrl: CC_BY_3,
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Fairytale_Waltz_(ISRC_USUAN1100232).mp3",
+  },
 ];
 
 export const THEMES: ThemeDefinition[] = [
@@ -127,6 +272,7 @@ export const THEMES: ThemeDefinition[] = [
 const flowerIds = new Set<string>(FLOWERS.map((f) => f.id));
 const vaseIds = new Set<string>(VASES.map((v) => v.id));
 const themeIds = new Set<string>(THEMES.map((t) => t.id));
+const musicIds = new Set<string>(MUSIC.map((m) => m.id));
 
 export const isFlowerId = (v: unknown): v is FlowerId =>
   typeof v === "string" && flowerIds.has(v);
@@ -134,7 +280,10 @@ export const isVaseStyle = (v: unknown): v is VaseStyle =>
   typeof v === "string" && vaseIds.has(v);
 export const isLetterTheme = (v: unknown): v is LetterTheme =>
   typeof v === "string" && themeIds.has(v);
+export const isMusicTrackId = (v: unknown): v is MusicTrackId =>
+  typeof v === "string" && musicIds.has(v);
 
 export const getFlower = (id: FlowerId) => FLOWERS.find((f) => f.id === id)!;
 export const getTheme = (id: LetterTheme) => THEMES.find((t) => t.id === id)!;
 export const getVase = (id: VaseStyle) => VASES.find((v) => v.id === id)!;
+export const getMusic = (id: MusicTrackId) => MUSIC.find((m) => m.id === id)!;

@@ -54,8 +54,25 @@ Before a public launch, add rate limiting to bouquet creation, for example a Ver
 | `src/components/FlowerPicker.tsx` | Flower grid, counters, flower cap (`MAX_FLOWERS`), drag source |
 | `src/components/PresetPicker.tsx` | Ready-made bouquets (defined in `src/lib/catalog.ts`) |
 | `src/components/LetterForm.tsx` | Themed letter editor |
+| `src/components/MusicPicker.tsx` | Background music choice with previews |
+| `src/components/LetterMusic.tsx` | Recipient music: fade-in playback and the now-playing pill |
 | `src/components/ShareModal.tsx` | Copy link, WhatsApp / X / Messenger, QR code, confetti |
 | `src/components/RecipientView.tsx` | Bloom-in bouquet and envelope that opens |
 | `src/lib/arrangement.ts` | Deterministic stem layout derived from flower counts |
 | `src/lib/bouquets.ts` | Validation and data access (Supabase or dev memory store) |
 | `src/types/bouquet.ts` | Shared TypeScript interfaces |
+
+## Music credits
+
+Background music lives in `public/music/`. Every recording is public domain or CC BY 3.0, sourced from Wikimedia Commons. Each track's credit is also shown in the player on the recipient page.
+
+| Track | Credit | License |
+|---|---|---|
+| Clair de Lune (Debussy) | Wright Brass, U.S. Air Force Band of Flight | Public domain (U.S. government work) |
+| Liebestraum No. 3 (Liszt) | Wilhelm Backhaus, recorded 1923 | Public domain |
+| Canon in D (Pachelbel) | "Canon in D Major" Kevin MacLeod (incompetech.com) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+| Gymnopédie No. 1 (Satie) | "Gymnopedie No. 1" Kevin MacLeod (incompetech.com) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+| Love Song | "Love Song" Kevin MacLeod (incompetech.com) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+| Fairytale Waltz | "Fairytale Waltz" Kevin MacLeod (incompetech.com) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+
+Source links for each file are in `MUSIC` in `src/lib/catalog.ts`. Only add tracks whose license you've verified: famous modern love songs are copyrighted, even as instrumental covers.

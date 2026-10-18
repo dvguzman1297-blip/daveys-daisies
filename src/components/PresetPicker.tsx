@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
-import { PRESETS } from "@/lib/catalog";
+import { Check, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { PRESETS, getVase } from "@/lib/catalog";
 import type { BouquetFlower, BouquetPreset, VaseStyle } from "@/types/bouquet";
 import { FlowerDefs, FlowerHead } from "./flowers/FlowerArt";
 
@@ -17,7 +18,13 @@ const matches = (preset: BouquetPreset, flowers: BouquetFlower[], vase: VaseStyl
   preset.flowers.length === flowers.length &&
   preset.flowers.every((p) => flowers.some((f) => f.id === p.id && f.count === p.count));
 
+/** Presets shown in the desktop grid before "Show more" (phones scroll through all). */
+const INITIAL_VISIBLE = 6;
+
 export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
+  const [expanded, setExpanded] = useState(false);
+  const hiddenCount = PRESETS.length - INITIAL_VISIBLE;
+
   return (
     <section aria-labelledby="presets-heading">
       <h2 id="presets-heading" className="font-display text-2xl text-ink">
@@ -27,11 +34,14 @@ export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
 
       {/* Horizontal scroller on mobile, grid on larger screens */}
       <ul className="-mx-4 mt-3 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0">
-        {PRESETS.map((preset) => {
+        {PRESETS.map((preset, index) => {
           const selected = matches(preset, flowers, vase);
           const total = preset.flowers.reduce((s, f) => s + f.count, 0);
           return (
-            <li key={preset.id} className="w-40 shrink-0 snap-start sm:w-auto">
+            <li
+              key={preset.id}
+              className={`w-40 shrink-0 snap-start sm:w-auto ${!expanded && index >= INITIAL_VISIBLE ? "sm:hidden" : ""}`}
+            >
               <motion.button
                 type="button"
                 onClick={() => onSelect(preset)}
@@ -52,13 +62,27 @@ export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
                 <span className="mt-1 text-sm font-bold text-ink">{preset.name}</span>
                 <span className="text-xs text-ink-soft">{preset.description}</span>
                 <span className="mt-1.5 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-bold text-sage-700">
-                  {total} flowers
+                  {total} flowers · {getVase(preset.vase).name}
                 </span>
               </motion.button>
             </li>
           );
         })}
       </ul>
+
+      {hiddenCount > 0 && (
+        <div className="mt-3 hidden justify-center sm:flex">
+          <button
+            type="button"
+            onClick={() => setExpanded((e) => !e)}
+            aria-expanded={expanded}
+            className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-sage-700 transition hover:bg-sage-100 focus-visible:outline-2 focus-visible:outline-sage-500"
+          >
+            {expanded ? "Show fewer" : `Show ${hiddenCount} more`}
+            <ChevronDown className={`size-4 transition-transform ${expanded ? "rotate-180" : ""}`} aria-hidden="true" />
+          </button>
+        </div>
+      )}
     </section>
   );
 }

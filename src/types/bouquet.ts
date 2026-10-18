@@ -10,6 +10,29 @@ export type VaseStyle = "glass" | "ribbon" | "kraft" | "newspaper" | "tissue" | 
 
 export type LetterTheme = "parchment" | "blush" | "midnight";
 
+export type MusicTrackId =
+  | "clair-de-lune"
+  | "liebestraum"
+  | "canon-in-d"
+  | "gymnopedie"
+  | "love-song"
+  | "fairytale-waltz";
+
+/** A background music track. All are public domain or CC BY (credited in the player). */
+export interface MusicTrack {
+  id: MusicTrackId;
+  title: string;
+  /** Composer and recording, shown under the title. */
+  subtitle: string;
+  mood: string;
+  src: string;
+  /** Required credit line (CC BY) or a courtesy credit (public domain). */
+  credit: string;
+  license: "Public domain" | "CC BY 3.0";
+  licenseUrl?: string;
+  sourceUrl: string;
+}
+
 /** One entry in a bouquet — matches the shape stored in `bouquets.flowers`. */
 export interface BouquetFlower {
   id: FlowerId;
@@ -52,6 +75,8 @@ export interface LetterDraft {
   from: string;
   message: string;
   theme: LetterTheme;
+  /** Optional background music played when the recipient opens the letter. */
+  music: MusicTrackId | null;
 }
 
 /** Client-side builder state. */
@@ -69,6 +94,7 @@ export interface CreateBouquetInput {
   theme: LetterTheme;
   vaseStyle: VaseStyle;
   flowers: Pick<BouquetFlower, "id" | "count">[];
+  music: MusicTrackId | null;
 }
 
 /** Row in the Supabase `bouquets` table. */
@@ -81,6 +107,7 @@ export interface BouquetRecord {
   theme: LetterTheme;
   flowers: BouquetFlower[];
   vase_style: VaseStyle;
+  music: MusicTrackId | null;
 }
 
 export type CreateBouquetResult =

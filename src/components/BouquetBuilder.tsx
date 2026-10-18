@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Flower2, Link2, Loader2, PenLine, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Flower2, Link2, Loader2, Music, PenLine, Sparkles } from "lucide-react";
 import { useCallback, useMemo, useReducer, useState, useTransition } from "react";
 import { createBouquet } from "@/app/actions";
 import { totalFlowers } from "@/lib/arrangement";
+import { getMusic } from "@/lib/catalog";
 import { builderReducer, initialBuilderState, validateLetter } from "@/lib/builder-state";
 import type { LetterDraft } from "@/types/bouquet";
 import { BouquetCanvas } from "./BouquetCanvas";
@@ -63,6 +64,7 @@ export function BouquetBuilder() {
         theme: state.letter.theme,
         vaseStyle: state.vase,
         flowers: state.flowers.map(({ id, count }) => ({ id, count })),
+        music: state.letter.music,
       });
       if (res.ok) {
         setSavedId(res.id);
@@ -152,6 +154,12 @@ export function BouquetBuilder() {
                     message={state.letter.message}
                     theme={state.letter.theme}
                   />
+                  {state.letter.music && (
+                    <p className="inline-flex items-center gap-2 self-start rounded-full bg-blush-100 px-3 py-1.5 text-sm font-semibold text-blush-700">
+                      <Music className="size-4" aria-hidden="true" />
+                      Plays {getMusic(state.letter.music).title} when opened
+                    </p>
+                  )}
                   {saveError && (
                     <p role="alert" className="rounded-xl bg-blush-100 px-4 py-3 text-sm font-semibold text-blush-700">
                       {saveError}

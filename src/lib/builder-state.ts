@@ -13,7 +13,7 @@ export type BuilderAction =
 export const initialBuilderState: BuilderState = {
   flowers: [],
   vase: "ribbon",
-  letter: { to: "", from: "", message: "", theme: "parchment" },
+  letter: { to: "", from: "", message: "", theme: "parchment", music: null },
 };
 
 export function builderReducer(state: BuilderState, action: BuilderAction): BuilderState {

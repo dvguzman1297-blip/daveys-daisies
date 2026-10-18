@@ -2,12 +2,14 @@
 
 import confetti from "canvas-confetti";
 import { AnimatePresence, motion } from "framer-motion";
-import { Flower2, MailOpen } from "lucide-react";
+import { Flower2, MailOpen, Volume2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { getMusic, isMusicTrackId } from "@/lib/catalog";
 import type { BouquetRecord } from "@/types/bouquet";
 import { BouquetCanvas } from "./BouquetCanvas";
 import { LetterCard } from "./LetterCard";
+import { MusicPlayer, useLetterMusic } from "./LetterMusic";
 
 const ENVELOPE: Record<BouquetRecord["theme"], { body: string; flap: string; seal: string }> = {
   parchment: { body: "#efe0bf", flap: "#e6d2a8", seal: "#c94b64" },
@@ -19,9 +21,13 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
   const [opened, setOpened] = useState(false);
   const colors = ENVELOPE[bouquet.theme];
   const flowerCount = bouquet.flowers.reduce((s, f) => s + f.count, 0);
+  const track = isMusicTrackId(bouquet.music) ? getMusic(bouquet.music) : null;
+  const music = useLetterMusic(track);
 
   const open = () => {
     setOpened(true);
+    // Opening the envelope is the user gesture that lets the browser start audio.
+    music.start();
     setTimeout(() => {
       confetti({
         particleCount: 60,
@@ -36,6 +42,10 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
 
   return (
     <main className="paper-dots relative flex flex-1 flex-col items-center px-4 pb-32 pt-10 sm:px-6">
+      {track && music.started && (
+        <MusicPlayer track={track} playing={music.playing} onPlay={music.play} onPause={music.pause} />
+      )}
+
       <motion.header
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -131,6 +141,18 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {track && !opened && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.8 }}
+              className="mt-4 flex items-center justify-center gap-1.5 text-sm font-semibold text-ink-soft"
+            >
+              <Volume2 className="size-4 text-blush-500" aria-hidden="true" />
+              This letter comes with music. Turn your sound on.
+            </motion.p>
+          )}
         </div>
       </div>
 

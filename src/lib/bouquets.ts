@@ -7,6 +7,7 @@ import {
   getFlower,
   isFlowerId,
   isLetterTheme,
+  isMusicTrackId,
   isVaseStyle,
 } from "@/lib/catalog";
 import { DB_SCHEMA, getSupabase, isSupabaseConfigured } from "@/lib/supabase/server";
@@ -35,6 +36,7 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
   if (!message || message.length > MAX_MESSAGE_LENGTH) return { ok: false, error: "Please write a letter (up to 500 characters)." };
   if (!isLetterTheme(i.theme)) return { ok: false, error: "Unknown letter theme." };
   if (!isVaseStyle(i.vaseStyle)) return { ok: false, error: "Unknown vase style." };
+  if (i.music != null && !isMusicTrackId(i.music)) return { ok: false, error: "Unknown music track." };
   if (!Array.isArray(i.flowers)) return { ok: false, error: "Invalid flowers." };
 
   const merged = new Map<string, BouquetFlower>();
@@ -59,6 +61,7 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
       theme: i.theme,
       vase_style: i.vaseStyle,
       flowers,
+      music: i.music ?? null,
     },
   };
 }
@@ -101,7 +104,7 @@ export const getBouquet = cache(async (id: string): Promise<BouquetRecord | null
   const { data, error } = await getSupabase()
     .schema(DB_SCHEMA)
     .from("bouquets")
-    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style")
+    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style, music")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`Failed to load bouquet: ${error.message}`);
