@@ -17,10 +17,13 @@ export function LetterCard({ to, from, message, theme, className = "" }: LetterC
     <article className={`theme-${theme} relative rounded-3xl border p-6 shadow-soft sm:p-8 ${t.cardClass} ${className}`}>
       {dark && <Stars />}
       <p className={`text-xs font-bold uppercase tracking-widest ${dark ? "text-cream/60" : "text-ink-soft"}`}>
-        A letter for
+        Dear
       </p>
-      <h3 className="font-display text-2xl sm:text-3xl">{to}</h3>
-      <p className="letter-lines mt-4 whitespace-pre-wrap break-words font-hand text-2xl">{message}</p>
+      <h3 className="font-display text-2xl sm:text-3xl">{to},</h3>
+      {/* Long letters scroll inside the card instead of stretching the page. */}
+      <p className="letter-lines mt-4 max-h-[26rem] overflow-y-auto whitespace-pre-wrap break-words pr-1 font-hand text-2xl">
+        {message}
+      </p>
       <p className="mt-6 text-right font-hand text-2xl">
         <span className={dark ? "text-cream/70" : "text-ink-soft"}>With love,</span>
         <br />

@@ -6,6 +6,7 @@ import { useCallback, useMemo, useReducer, useState, useTransition } from "react
 import { createBouquet } from "@/app/actions";
 import { totalFlowers } from "@/lib/arrangement";
 import { getMusic } from "@/lib/catalog";
+import { formatTime } from "@/lib/youtube";
 import { builderReducer, initialBuilderState, validateLetter } from "@/lib/builder-state";
 import type { LetterDraft } from "@/types/bouquet";
 import { BouquetCanvas } from "./BouquetCanvas";
@@ -65,6 +66,11 @@ export function BouquetBuilder() {
         vaseStyle: state.vase,
         flowers: state.flowers.map(({ id, count }) => ({ id, count })),
         music: state.letter.music,
+        youtube: state.letter.youtube && {
+          videoId: state.letter.youtube.videoId,
+          start: state.letter.youtube.start,
+          end: state.letter.youtube.end,
+        },
       });
       if (res.ok) {
         setSavedId(res.id);
@@ -154,10 +160,14 @@ export function BouquetBuilder() {
                     message={state.letter.message}
                     theme={state.letter.theme}
                   />
-                  {state.letter.music && (
-                    <p className="inline-flex items-center gap-2 self-start rounded-full bg-blush-100 px-3 py-1.5 text-sm font-semibold text-blush-700">
-                      <Music className="size-4" aria-hidden="true" />
-                      Plays {getMusic(state.letter.music).title} when opened
+                  {(state.letter.music || state.letter.youtube) && (
+                    <p className="inline-flex max-w-full items-center gap-2 self-start rounded-full bg-blush-100 px-3 py-1.5 text-sm font-semibold text-blush-700">
+                      <Music className="size-4 shrink-0" aria-hidden="true" />
+                      <span className="truncate">
+                        {state.letter.youtube
+                          ? `Plays ${formatTime(state.letter.youtube.start)}–${formatTime(state.letter.youtube.end)} of ${state.letter.youtube.title} when opened`
+                          : `Plays ${getMusic(state.letter.music!).title} when opened`}
+                      </span>
                     </p>
                   )}
                   {saveError && (
@@ -169,7 +179,7 @@ export function BouquetBuilder() {
                     type="button"
                     onClick={save}
                     disabled={saving}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-blush-500 px-6 py-4 text-lg font-bold text-white shadow-soft transition hover:bg-blush-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush-500 disabled:opacity-70"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-blush-700 px-6 py-4 text-lg font-bold text-white shadow-soft transition hover:bg-blush-700/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush-700 disabled:opacity-70"
                   >
                     {saving ? (
                       <Loader2 className="size-5 animate-spin" aria-hidden="true" />

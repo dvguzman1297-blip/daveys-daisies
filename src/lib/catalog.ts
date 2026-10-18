@@ -11,7 +11,7 @@ import type {
 } from "@/types/bouquet";
 
 export const MAX_FLOWERS = 20;
-export const MAX_MESSAGE_LENGTH = 500;
+export const MAX_MESSAGE_LENGTH = 5000;
 export const MAX_NAME_LENGTH = 40;
 
 export const FLOWERS: FlowerDefinition[] = [
@@ -187,6 +187,7 @@ export const MUSIC: MusicTrack[] = [
     subtitle: "Debussy · U.S. Air Force Band, Wright Brass",
     mood: "Dreamy",
     src: "/music/clair-de-lune.mp3",
+    chorusAt: 104,
     credit: "Performed by the Wright Brass, U.S. Air Force Band of Flight (public domain)",
     license: "Public domain",
     sourceUrl: "https://commons.wikimedia.org/wiki/File:Clair_de_Lune_-_Wright_Brass_-_United_States_Air_Force_Band_of_Flight.mp3",
@@ -197,6 +198,7 @@ export const MUSIC: MusicTrack[] = [
     subtitle: "Liszt · Wilhelm Backhaus, 1923",
     mood: "Vintage & tender",
     src: "/music/liebestraum.mp3",
+    chorusAt: 108,
     credit: "Performed by Wilhelm Backhaus, recorded 1923 (public domain)",
     license: "Public domain",
     sourceUrl:
@@ -208,6 +210,7 @@ export const MUSIC: MusicTrack[] = [
     subtitle: "Pachelbel · Kevin MacLeod",
     mood: "Wedding classic",
     src: "/music/canon-in-d.mp3",
+    chorusAt: 140,
     credit: MACLEOD_CREDIT("Canon in D Major"),
     license: "CC BY 3.0",
     licenseUrl: CC_BY_3,
@@ -219,6 +222,7 @@ export const MUSIC: MusicTrack[] = [
     subtitle: "Satie · Kevin MacLeod",
     mood: "Soft & calm",
     src: "/music/gymnopedie.mp3",
+    chorusAt: 137,
     credit: MACLEOD_CREDIT("Gymnopedie No. 1"),
     license: "CC BY 3.0",
     licenseUrl: CC_BY_3,
@@ -230,6 +234,7 @@ export const MUSIC: MusicTrack[] = [
     subtitle: "Kevin MacLeod",
     mood: "Hopeful",
     src: "/music/love-song.mp3",
+    chorusAt: 120,
     credit: MACLEOD_CREDIT("Love Song"),
     license: "CC BY 3.0",
     licenseUrl: CC_BY_3,
@@ -241,6 +246,7 @@ export const MUSIC: MusicTrack[] = [
     subtitle: "Kevin MacLeod",
     mood: "Whimsical",
     src: "/music/fairytale-waltz.mp3",
+    chorusAt: 64,
     credit: MACLEOD_CREDIT("Fairytale Waltz"),
     license: "CC BY 3.0",
     licenseUrl: CC_BY_3,

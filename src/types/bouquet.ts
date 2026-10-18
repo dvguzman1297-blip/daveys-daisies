@@ -26,6 +26,8 @@ export interface MusicTrack {
   subtitle: string;
   mood: string;
   src: string;
+  /** Seconds into the track where its best-known part starts; previews begin here. */
+  chorusAt: number;
   /** Required credit line (CC BY) or a courtesy credit (public domain). */
   credit: string;
   license: "Public domain" | "CC BY 3.0";
@@ -70,6 +72,17 @@ export interface ThemeDefinition {
   swatchClass: string;
 }
 
+/** A trimmed slice of a YouTube video, played on a loop when the letter opens. */
+export interface YouTubeClip {
+  videoId: string;
+  /** Looked up server-side from YouTube when the bouquet is saved. */
+  title: string;
+  author: string;
+  /** Clip bounds in seconds. */
+  start: number;
+  end: number;
+}
+
 export interface LetterDraft {
   to: string;
   from: string;
@@ -77,6 +90,8 @@ export interface LetterDraft {
   theme: LetterTheme;
   /** Optional background music played when the recipient opens the letter. */
   music: MusicTrackId | null;
+  /** Alternative to `music`: a clip from a YouTube video. Only one is set at a time. */
+  youtube: YouTubeClip | null;
 }
 
 /** Client-side builder state. */
@@ -95,6 +110,7 @@ export interface CreateBouquetInput {
   vaseStyle: VaseStyle;
   flowers: Pick<BouquetFlower, "id" | "count">[];
   music: MusicTrackId | null;
+  youtube: Pick<YouTubeClip, "videoId" | "start" | "end"> | null;
 }
 
 /** Row in the Supabase `bouquets` table. */
@@ -108,6 +124,7 @@ export interface BouquetRecord {
   flowers: BouquetFlower[];
   vase_style: VaseStyle;
   music: MusicTrackId | null;
+  youtube: YouTubeClip | null;
 }
 
 export type CreateBouquetResult =

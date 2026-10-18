@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Info, Music, Pause, Play } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { MusicTrack } from "@/types/bouquet";
 
 const TARGET_VOLUME = 0.5;
@@ -68,35 +68,37 @@ export function useLetterMusic(track: MusicTrack | null) {
 }
 
 interface MusicPlayerProps {
-  track: MusicTrack;
+  title: string;
+  /** Shown when the info button is tapped. */
+  credits: ReactNode;
   playing: boolean;
   onPlay: () => void;
   onPause: () => void;
 }
 
-/** Floating "now playing" pill with pause/play and the required credits. */
-export function MusicPlayer({ track, playing, onPlay, onPause }: MusicPlayerProps) {
+/** Pause/play pill shown in the flow under the letter, only while music isn't playing (e.g. autoplay was blocked), with pause/play and the required credits. */
+export function MusicPlayer({ title, credits, playing, onPlay, onPause }: MusicPlayerProps) {
   const [showCredits, setShowCredits] = useState(false);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.6 }}
-      className="fixed right-3 top-3 z-30 flex max-w-[calc(100vw-1.5rem)] flex-col items-end gap-2 sm:right-5 sm:top-5"
+      transition={{ type: "spring", stiffness: 260, damping: 22, delay: 2.5 }}
+      className="mt-4 flex w-full flex-col items-center gap-2"
     >
       <div className="flex items-center gap-2 rounded-full border border-sage-100 bg-white/90 py-1.5 pl-1.5 pr-2 shadow-soft backdrop-blur">
         <button
           type="button"
           onClick={playing ? onPause : onPlay}
-          aria-label={playing ? `Pause ${track.title}` : `Play ${track.title}`}
-          className="grid size-9 shrink-0 place-items-center rounded-full bg-blush-500 text-white transition hover:bg-blush-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush-500"
+          aria-label={playing ? `Pause ${title}` : `Play ${title}`}
+          className="grid size-9 shrink-0 place-items-center rounded-full bg-blush-700 text-white transition hover:bg-blush-700/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blush-500"
         >
           {playing ? <Pause className="size-4" aria-hidden="true" /> : <Play className="size-4" aria-hidden="true" />}
         </button>
         <span className="flex min-w-0 items-center gap-1.5 text-sm">
           <Equalizer active={playing} />
-          <span className="truncate font-bold text-ink">{track.title}</span>
+          <span className="truncate font-bold text-ink">{title}</span>
         </span>
         <button
           type="button"
@@ -118,20 +120,29 @@ export function MusicPlayer({ track, playing, onPlay, onPause }: MusicPlayerProp
             className="max-w-xs rounded-2xl border border-sage-100 bg-white/95 p-3 text-xs leading-relaxed text-ink-soft shadow-soft"
           >
             <Music className="mr-1 inline size-3.5 align-[-2px]" aria-hidden="true" />
-            {track.credit}.{" "}
-            {track.licenseUrl && (
-              <a href={track.licenseUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-blush-700 underline">
-                License
-              </a>
-            )}
-            {track.licenseUrl && " · "}
-            <a href={track.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-blush-700 underline">
-              Source
-            </a>
+            {credits}
           </motion.p>
         )}
       </AnimatePresence>
     </motion.div>
+  );
+}
+
+/** Credit line for a built-in track (required for the CC BY ones). */
+export function TrackCredits({ track }: { track: MusicTrack }) {
+  return (
+    <>
+      {track.credit}.{" "}
+      {track.licenseUrl && (
+        <a href={track.licenseUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-blush-700 underline">
+          License
+        </a>
+      )}
+      {track.licenseUrl && " · "}
+      <a href={track.sourceUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-blush-700 underline">
+        Source
+      </a>
+    </>
   );
 }
 

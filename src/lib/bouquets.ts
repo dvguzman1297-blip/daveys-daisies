@@ -11,11 +11,18 @@ import {
   isVaseStyle,
 } from "@/lib/catalog";
 import { DB_SCHEMA, getSupabase, isSupabaseConfigured } from "@/lib/supabase/server";
+import { MAX_VIDEO_SECONDS, isYouTubeId } from "@/lib/youtube";
 import type { BouquetFlower, BouquetRecord, CreateBouquetInput } from "@/types/bouquet";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-type NewBouquet = Omit<BouquetRecord, "id" | "created_at">;
+type NewBouquet = Omit<BouquetRecord, "id" | "created_at" | "youtube"> & {
+  /** Title and author are filled in from YouTube by the caller, never trusted from the client. */
+  youtube: CreateBouquetInput["youtube"];
+};
+
+const isSeconds = (v: unknown): v is number =>
+  typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= MAX_VIDEO_SECONDS;
 
 /**
  * Validates untrusted input from the client. Server Actions are plain POST
@@ -33,10 +40,27 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
 
   if (!sender || sender.length > MAX_NAME_LENGTH) return { ok: false, error: "Please add who it's from." };
   if (!recipient || recipient.length > MAX_NAME_LENGTH) return { ok: false, error: "Please add who it's for." };
-  if (!message || message.length > MAX_MESSAGE_LENGTH) return { ok: false, error: "Please write a letter (up to 500 characters)." };
+  if (!message || message.length > MAX_MESSAGE_LENGTH) return { ok: false, error: `Please write a letter (up to ${MAX_MESSAGE_LENGTH} characters).` };
   if (!isLetterTheme(i.theme)) return { ok: false, error: "Unknown letter theme." };
   if (!isVaseStyle(i.vaseStyle)) return { ok: false, error: "Unknown vase style." };
   if (i.music != null && !isMusicTrackId(i.music)) return { ok: false, error: "Unknown music track." };
+  let youtube: NewBouquet["youtube"] = null;
+  if (i.youtube != null) {
+    const { videoId, start, end } = i.youtube;
+    // The client keeps clips at 15s or more; 1s is the floor for videos shorter than that.
+    if (!isYouTubeId(videoId) || !isSeconds(start) || !isSeconds(end)) {
+      return { ok: false, error: "That YouTube clip looks off. Please pick it again." };
+    }
+    // Round to tenths first: 9.1 + 60 - 9.1 isn't exactly 60 in floating point.
+    const s = Math.round(start * 10) / 10;
+    const e = Math.round(end * 10) / 10;
+    const length = Math.round((e - s) * 10) / 10;
+    if (length < 1 || length > MAX_VIDEO_SECONDS) {
+      return { ok: false, error: "That YouTube clip looks off. Please pick it again." };
+    }
+    if (i.music != null) return { ok: false, error: "Pick either a song from the list or a YouTube clip." };
+    youtube = { videoId, start: s, end: e };
+  }
   if (!Array.isArray(i.flowers)) return { ok: false, error: "Invalid flowers." };
 
   const merged = new Map<string, BouquetFlower>();
@@ -62,6 +86,7 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
       vase_style: i.vaseStyle,
       flowers,
       music: i.music ?? null,
+      youtube,
     },
   };
 }
@@ -79,7 +104,7 @@ const warnOnce = () => {
   warned = true;
 };
 
-export async function insertBouquet(bouquet: NewBouquet): Promise<string> {
+export async function insertBouquet(bouquet: Omit<BouquetRecord, "id" | "created_at">): Promise<string> {
   if (shouldUseMemoryStore()) {
     warnOnce();
     const id = crypto.randomUUID();
@@ -104,7 +129,7 @@ export const getBouquet = cache(async (id: string): Promise<BouquetRecord | null
   const { data, error } = await getSupabase()
     .schema(DB_SCHEMA)
     .from("bouquets")
-    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style, music")
+    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style, music, youtube")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`Failed to load bouquet: ${error.message}`);

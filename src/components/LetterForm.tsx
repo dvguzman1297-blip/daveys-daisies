@@ -102,11 +102,12 @@ export function LetterForm({ value, onChange, errors = {} }: LetterFormProps) {
             placeholder="Write something from the heart…"
             aria-invalid={!!errors.message}
             aria-describedby="letter-count"
-            className={`letter-lines w-full resize-none border-0 bg-transparent px-1 font-hand text-2xl outline-none focus:ring-0 ${
+            className={`letter-lines max-h-[26rem] w-full resize-none overflow-y-auto border-0 bg-transparent px-1 font-hand text-2xl outline-none focus:ring-0 ${
               dark ? "placeholder:text-cream/40" : "placeholder:text-ink/30"
             }`}
           />
         </Field>
+        {/* Only worth showing as the limit gets close. */}
         <p
           id="letter-count"
           aria-live="polite"
@@ -114,11 +115,11 @@ export function LetterForm({ value, onChange, errors = {} }: LetterFormProps) {
             remaining < 50 ? (dark ? "text-blush-300" : "text-blush-700") : dark ? "text-cream/60" : "text-ink-soft"
           }`}
         >
-          {remaining} characters left
+          {remaining < 500 ? `${remaining} characters left` : ""}
         </p>
       </div>
 
-      <MusicPicker value={value.music} onChange={(music) => set("music", music)} />
+      <MusicPicker value={value.music} youtube={value.youtube} onChange={(source) => onChange({ ...value, ...source })} />
     </motion.div>
   );
 }
