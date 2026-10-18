@@ -92,6 +92,12 @@ export interface LetterDraft {
   music: MusicTrackId | null;
   /** Alternative to `music`: a clip from a YouTube video. Only one is set at a time. */
   youtube: YouTubeClip | null;
+  /** Optional: email the recipient a link to open the letter. */
+  recipientEmail: string;
+  /** Keep the sender's name off the email, the page header and link previews. */
+  anonymous: boolean;
+  /** Optional sign-off used instead of `from` when sending anonymously. */
+  nickname: string;
 }
 
 /** Client-side builder state. */
@@ -111,6 +117,8 @@ export interface CreateBouquetInput {
   flowers: Pick<BouquetFlower, "id" | "count">[];
   music: MusicTrackId | null;
   youtube: Pick<YouTubeClip, "videoId" | "start" | "end"> | null;
+  recipientEmail: string | null;
+  anonymous: boolean;
 }
 
 /** Row in the Supabase `bouquets` table. */
@@ -125,8 +133,17 @@ export interface BouquetRecord {
   vase_style: VaseStyle;
   music: MusicTrackId | null;
   youtube: YouTubeClip | null;
+  /** When true the sender's name is hidden from the page header, link previews and email. */
+  anonymous: boolean;
 }
 
+/** What happened when we tried to email the recipient. */
+export type EmailOutcome =
+  | { status: "sent"; to: string }
+  | { status: "blocked" } // the recipient asked not to get our emails
+  | { status: "limited" } // too many emails recently
+  | { status: "failed" };
+
 export type CreateBouquetResult =
-  | { ok: true; id: string }
+  | { ok: true; id: string; email?: EmailOutcome }
   | { ok: false; error: string };

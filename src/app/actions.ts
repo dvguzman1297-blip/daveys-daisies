@@ -1,9 +1,10 @@
 "use server";
 
 import { insertBouquet, validateBouquet } from "@/lib/bouquets";
+import { sendBouquetEmail } from "@/lib/email/send";
 import { parseYouTubeId } from "@/lib/youtube";
 import { fetchYouTubeInfo } from "@/lib/youtube-oembed";
-import type { CreateBouquetInput, CreateBouquetResult } from "@/types/bouquet";
+import type { CreateBouquetInput, CreateBouquetResult, EmailOutcome } from "@/types/bouquet";
 
 const UNPLAYABLE = "We couldn't find that video, or its owner doesn't allow it to play on other sites. Try another link.";
 
@@ -16,7 +17,7 @@ const UNPLAYABLE = "We couldn't find that video, or its owner doesn't allow it t
 export async function createBouquet(input: CreateBouquetInput): Promise<CreateBouquetResult> {
   const result = validateBouquet(input);
   if (!result.ok) return result;
-  const { youtube, ...rest } = result.value;
+  const { youtube, recipient_email, ...rest } = result.value;
 
   let clip = null;
   if (youtube) {
@@ -27,8 +28,19 @@ export async function createBouquet(input: CreateBouquetInput): Promise<CreateBo
   }
 
   try {
-    const id = await insertBouquet({ ...rest, youtube: clip });
-    return { ok: true, id };
+    const id = await insertBouquet({ ...rest, youtube: clip, recipient_email });
+    // The bouquet is saved either way; a problem with the email never loses it.
+    let email: EmailOutcome | undefined;
+    if (recipient_email) {
+      email = await sendBouquetEmail({
+        bouquetId: id,
+        to: recipient_email,
+        recipientName: rest.recipient_name,
+        // Anonymous: the sender's name never goes into the email.
+        senderName: rest.anonymous ? null : rest.sender_name,
+      });
+    }
+    return { ok: true, id, email };
   } catch (err) {
     console.error(err);
     return { ok: false, error: "We couldn't save your bouquet. Please try again." };

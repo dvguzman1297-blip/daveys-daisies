@@ -13,6 +13,8 @@ import type {
 export const MAX_FLOWERS = 20;
 export const MAX_MESSAGE_LENGTH = 5000;
 export const MAX_NAME_LENGTH = 40;
+/** How an anonymous letter is signed when the sender doesn't pick a nickname. */
+export const ANONYMOUS_SIGNATURE = "A secret admirer";
 
 export const FLOWERS: FlowerDefinition[] = [
   { id: "daisy", name: "Daisy", meaning: "Innocence & joy" },

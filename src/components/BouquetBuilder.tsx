@@ -1,14 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Flower2, Link2, Loader2, Music, PenLine, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, EyeOff, Flower2, Link2, Loader2, Mail, Music, PenLine, Sparkles, User } from "lucide-react";
 import { useCallback, useMemo, useReducer, useState, useTransition } from "react";
 import { createBouquet } from "@/app/actions";
 import { totalFlowers } from "@/lib/arrangement";
 import { getMusic } from "@/lib/catalog";
+import { normalizeEmail } from "@/lib/email/address";
 import { formatTime } from "@/lib/youtube";
-import { builderReducer, initialBuilderState, validateLetter } from "@/lib/builder-state";
-import type { LetterDraft } from "@/types/bouquet";
+import { builderReducer, initialBuilderState, signatureOf, validateLetter } from "@/lib/builder-state";
+import type { EmailOutcome, LetterDraft } from "@/types/bouquet";
 import { BouquetCanvas } from "./BouquetCanvas";
 import { FlowerPicker } from "./FlowerPicker";
 import { LetterCard } from "./LetterCard";
@@ -23,13 +24,18 @@ const STEPS = [
   { label: "Send", icon: Link2 },
 ] as const;
 
-export function BouquetBuilder() {
-  const [state, dispatch] = useReducer(builderReducer, initialBuilderState);
+export function BouquetBuilder({ initialAnonymous = false }: { initialAnonymous?: boolean }) {
+  const [state, dispatch] = useReducer(builderReducer, initialAnonymous, (anonymous) => ({
+    ...initialBuilderState,
+    letter: { ...initialBuilderState.letter, anonymous },
+  }));
   const [step, setStep] = useState(0);
   const [letterErrors, setLetterErrors] = useState<Partial<Record<keyof LetterDraft, string>>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailOutcome, setEmailOutcome] = useState<EmailOutcome | null>(null);
   const [saving, startSaving] = useTransition();
 
   const total = totalFlowers(state.flowers);
@@ -41,6 +47,7 @@ export function BouquetBuilder() {
   // Any edit after saving means the shared link would be stale, so require a new save.
   const edit = useCallback((action: Parameters<typeof dispatch>[0]) => {
     setSavedId(null);
+    setEmailOutcome(null);
     dispatch(action);
   }, []);
 
@@ -57,9 +64,15 @@ export function BouquetBuilder() {
   const save = () => {
     if (savedId) return setShareOpen(true);
     setSaveError(null);
+    const recipientEmail = state.letter.recipientEmail.trim();
+    if (recipientEmail && !normalizeEmail(recipientEmail)) {
+      setEmailError("That email address doesn't look right.");
+      return;
+    }
+    setEmailError(null);
     startSaving(async () => {
       const res = await createBouquet({
-        senderName: state.letter.from,
+        senderName: signatureOf(state.letter),
         recipientName: state.letter.to,
         message: state.letter.message,
         theme: state.letter.theme,
@@ -71,8 +84,11 @@ export function BouquetBuilder() {
           start: state.letter.youtube.start,
           end: state.letter.youtube.end,
         },
+        recipientEmail: recipientEmail || null,
+        anonymous: state.letter.anonymous,
       });
       if (res.ok) {
+        setEmailOutcome(res.email ?? null);
         setSavedId(res.id);
         setShareOpen(true);
       } else {
@@ -156,7 +172,7 @@ export function BouquetBuilder() {
                   </div>
                   <LetterCard
                     to={state.letter.to}
-                    from={state.letter.from}
+                    from={signatureOf(state.letter)}
                     message={state.letter.message}
                     theme={state.letter.theme}
                   />
@@ -170,6 +186,61 @@ export function BouquetBuilder() {
                       </span>
                     </p>
                   )}
+                  <div className="rounded-3xl border border-sage-100 bg-white/70 p-5 shadow-soft">
+                    <h3 className="flex items-center gap-2 font-display text-lg text-ink">
+                      <Mail className="size-5 text-sage-700" aria-hidden="true" />
+                      Email it to {state.letter.to.trim() || "them"}?
+                      <span className="font-sans text-sm font-semibold text-ink-soft">Optional</span>
+                    </h3>
+                    <p className="mt-1 text-sm text-ink-soft">
+                      We&apos;ll email them a link to open your letter. The email never includes what you wrote.
+                    </p>
+                    <label htmlFor="recipient-email" className="sr-only">
+                      Their email address
+                    </label>
+                    <input
+                      id="recipient-email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="off"
+                      value={state.letter.recipientEmail}
+                      onChange={(e) => {
+                        setEmailError(null);
+                        edit({ type: "setLetter", letter: { ...state.letter, recipientEmail: e.target.value } });
+                      }}
+                      placeholder="their@email.com"
+                      maxLength={254}
+                      aria-invalid={!!emailError}
+                      aria-describedby={emailError ? "recipient-email-error" : undefined}
+                      className="mt-3 w-full rounded-xl border border-sage-200 bg-white px-3 py-2.5 text-base text-ink outline-none transition placeholder:text-ink-soft/60 focus:border-sage-500"
+                    />
+                    {emailError && (
+                      <p id="recipient-email-error" role="alert" className="mt-1 text-sm font-semibold text-blush-700">
+                        {emailError}
+                      </p>
+                    )}
+
+                    <p className="mt-4 flex items-start gap-2.5 rounded-2xl bg-sage-100/60 p-3 text-sm text-ink-soft">
+                      {state.letter.anonymous ? (
+                        <>
+                          <EyeOff className="mt-0.5 size-4 shrink-0 text-sage-700" aria-hidden="true" />
+                          <span>
+                            <strong className="text-ink">Sending anonymously.</strong> Your name stays off the email,
+                            the top of the page and link previews. The letter is signed &ldquo;
+                            {signatureOf(state.letter)}&rdquo;.
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <User className="mt-0.5 size-4 shrink-0 text-sage-700" aria-hidden="true" />
+                          <span>
+                            Your name will show on the email and the letter. To hide it, go back and choose{" "}
+                            <strong className="text-ink">Anonymously</strong> on the letter step.
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </div>
                   {saveError && (
                     <p role="alert" className="rounded-xl bg-blush-100 px-4 py-3 text-sm font-semibold text-blush-700">
                       {saveError}
@@ -186,7 +257,13 @@ export function BouquetBuilder() {
                     ) : (
                       <Sparkles className="size-5" aria-hidden="true" />
                     )}
-                    {saving ? "Wrapping your bouquet…" : savedId ? "Show share link" : "Create shareable link"}
+                    {saving
+                      ? "Wrapping your bouquet…"
+                      : savedId
+                        ? "Show share link"
+                        : state.letter.recipientEmail.trim()
+                          ? "Create link & email it"
+                          : "Create shareable link"}
                   </button>
                 </div>
               )}
@@ -226,6 +303,7 @@ export function BouquetBuilder() {
         open={shareOpen && !!shareUrl}
         url={shareUrl}
         recipientName={state.letter.to.trim()}
+        email={emailOutcome}
         onClose={() => setShareOpen(false)}
       />
     </div>

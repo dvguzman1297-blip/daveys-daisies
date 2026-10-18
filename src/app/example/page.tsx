@@ -27,6 +27,7 @@ const EXAMPLE: BouquetRecord = {
   ],
   music: "clair-de-lune",
   youtube: null,
+  anonymous: false,
 };
 
 export default function ExamplePage() {

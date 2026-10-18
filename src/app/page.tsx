@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Download, Flower2, Link2, Lock, Music, PenLine, QrCode } from "lucide-react";
+import { ArrowRight, Check, Download, EyeOff, Flower2, Link2, Music, PenLine, QrCode } from "lucide-react";
 import Link from "next/link";
 import { HeroScene } from "@/components/HeroScene";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -23,7 +23,7 @@ const EXTRAS = [
   { icon: Music, title: "Add a song", body: "Pick from our list, or paste a YouTube link and choose exactly which part plays." },
   { icon: Download, title: "A keepsake to save", body: "They can download the bouquet and letter together as a picture to keep." },
   { icon: QrCode, title: "Share it your way", body: "A private link and a QR code, ready for a card, a text or a story." },
-  { icon: Lock, title: "Just for them", body: "Only people who have your link can open it. No accounts, no feed." },
+  { icon: EyeOff, title: "Send it anonymously", body: "Email it to them and keep your name off the email, the page and the link preview." },
 ];
 
 export default function Home() {
@@ -62,10 +62,11 @@ export default function Home() {
                   <ArrowRight className="size-5" aria-hidden="true" />
                 </Link>
                 <Link
-                  href="/example"
+                  href="/create/anonymous"
                   className="inline-flex items-center gap-2 rounded-full border border-sage-300 bg-white/70 px-6 py-4 text-lg font-bold text-sage-700 transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-500"
                 >
-                  See an example
+                  <EyeOff className="size-5" aria-hidden="true" />
+                  Send anonymously
                 </Link>
               </div>
 
@@ -77,6 +78,15 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
+              <p className="mt-4">
+                <Link
+                  href="/example"
+                  className="inline-flex items-center gap-1 font-bold text-sage-700 underline underline-offset-4 hover:text-sage-700/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-500"
+                >
+                  See an example
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </p>
 
             </div>
 
@@ -134,6 +144,9 @@ export default function Home() {
         <nav aria-label="Footer" className="mb-3 flex justify-center gap-6 font-semibold text-sage-700">
           <Link href="/create" className="hover:underline focus-visible:outline-2 focus-visible:outline-sage-500">
             Create a bouquet
+          </Link>
+          <Link href="/create/anonymous" className="hover:underline focus-visible:outline-2 focus-visible:outline-sage-500">
+            Send anonymously
           </Link>
           <Link href="/example" className="hover:underline focus-visible:outline-2 focus-visible:outline-sage-500">
             See an example

@@ -9,7 +9,8 @@ export async function generateMetadata(props: PageProps<"/b/[id]">): Promise<Met
   if (!bouquet) return { title: "Bouquet not found" };
 
   const title = `A bouquet for ${bouquet.recipient_name}`;
-  const description = `${bouquet.sender_name} sent you flowers and a letter. Tap to open.`;
+  // Link previews are public, so an anonymous sender's name must not appear in them.
+  const description = `${bouquet.anonymous ? "Someone" : bouquet.sender_name} sent you flowers and a letter. Tap to open.`;
   return {
     title,
     description,

@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
-import { MAX_MESSAGE_LENGTH, MAX_NAME_LENGTH, THEMES, getTheme } from "@/lib/catalog";
+import { Check, EyeOff, User } from "lucide-react";
+import { ANONYMOUS_SIGNATURE, MAX_MESSAGE_LENGTH, MAX_NAME_LENGTH, THEMES, getTheme } from "@/lib/catalog";
 import type { LetterDraft, LetterTheme } from "@/types/bouquet";
 import { MusicPicker } from "./MusicPicker";
 
@@ -65,6 +65,40 @@ export function LetterForm({ value, onChange, errors = {} }: LetterFormProps) {
       </fieldset>
 
       <div className={`theme-${value.theme} rounded-3xl border p-5 shadow-soft sm:p-7 ${theme.cardClass}`}>
+        <fieldset className="mb-5">
+          <legend className="sr-only">How should the letter be signed?</legend>
+          <div className={`inline-flex rounded-full p-1 ${dark ? "bg-white/10" : "bg-black/5"}`}>
+            {[
+              { anonymous: false, label: "With my name", icon: User },
+              { anonymous: true, label: "Anonymously", icon: EyeOff },
+            ].map(({ anonymous, label, icon: Icon }) => {
+              const active = value.anonymous === anonymous;
+              return (
+                <label
+                  key={label}
+                  className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-sage-500 ${
+                    active
+                      ? "bg-white text-ink shadow-soft"
+                      : dark
+                        ? "text-cream/70 hover:text-cream"
+                        : "text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="letter-mode"
+                    checked={active}
+                    onChange={() => set("anonymous", anonymous)}
+                    className="sr-only"
+                  />
+                  <Icon className="size-4" aria-hidden="true" />
+                  {label}
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="To" error={errors.to} dark={dark} htmlFor="letter-to">
             <input
@@ -78,19 +112,39 @@ export function LetterForm({ value, onChange, errors = {} }: LetterFormProps) {
               className={inputClass}
             />
           </Field>
-          <Field label="From" error={errors.from} dark={dark} htmlFor="letter-from">
-            <input
-              id="letter-from"
-              value={value.from}
-              maxLength={MAX_NAME_LENGTH}
-              onChange={(e) => set("from", e.target.value)}
-              placeholder="Your name"
-              autoComplete="name"
-              aria-invalid={!!errors.from}
-              className={inputClass}
-            />
-          </Field>
+          {value.anonymous ? (
+            <Field label="Sign as (optional)" dark={dark} htmlFor="letter-nickname">
+              <input
+                id="letter-nickname"
+                value={value.nickname}
+                maxLength={MAX_NAME_LENGTH}
+                onChange={(e) => set("nickname", e.target.value)}
+                placeholder={ANONYMOUS_SIGNATURE}
+                autoComplete="off"
+                className={inputClass}
+              />
+            </Field>
+          ) : (
+            <Field label="From" error={errors.from} dark={dark} htmlFor="letter-from">
+              <input
+                id="letter-from"
+                value={value.from}
+                maxLength={MAX_NAME_LENGTH}
+                onChange={(e) => set("from", e.target.value)}
+                placeholder="Your name"
+                autoComplete="name"
+                aria-invalid={!!errors.from}
+                className={inputClass}
+              />
+            </Field>
+          )}
         </div>
+
+        {value.anonymous && (
+          <p className={`mt-2 text-xs ${dark ? "text-cream/60" : "text-ink-soft"}`}>
+            Your name is never shown. Leave &ldquo;Sign as&rdquo; empty to sign as &ldquo;{ANONYMOUS_SIGNATURE}&rdquo;.
+          </p>
+        )}
 
         <Field label="Your letter" error={errors.message} dark={dark} htmlFor="letter-message" className="mt-5">
           <textarea

@@ -5,17 +5,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Copy, ExternalLink, MessageCircle, Send, Share2, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useRef, useState } from "react";
+import type { EmailOutcome } from "@/types/bouquet";
 
 interface ShareModalProps {
   open: boolean;
   url: string;
   recipientName: string;
+  /** What happened when we tried to email the recipient, if the sender asked us to. */
+  email?: EmailOutcome | null;
   onClose: () => void;
 }
 
 const PETAL_COLORS = ["#f3bfc8", "#fbe49e", "#b9cbb0", "#ffffff", "#e48a9b"];
 
-export function ShareModal({ open, url, recipientName, onClose }: ShareModalProps) {
+export function ShareModal({ open, url, recipientName, email, onClose }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   // The modal only renders after a client interaction, so reading navigator here is hydration-safe.
@@ -126,6 +129,21 @@ export function ShareModal({ open, url, recipientName, onClose }: ShareModalProp
             <p className="mt-1 text-sm text-ink-soft">
               Send this link to {recipientName}. Anyone with the link can open it.
             </p>
+            {email && (
+              <p
+                role="status"
+                className={`mt-3 rounded-xl px-3 py-2 text-sm font-semibold ${
+                  email.status === "sent" ? "bg-sage-100 text-sage-700" : "bg-blush-100 text-blush-700"
+                }`}
+              >
+                {email.status === "sent" && `We emailed ${email.to} with a link to open it.`}
+                {email.status === "blocked" &&
+                  "That address has asked not to get emails from us, so we didn't send one. You can still share the link yourself."}
+                {email.status === "limited" &&
+                  "We've sent a lot of emails recently, so we didn't send this one. You can still share the link yourself."}
+                {email.status === "failed" && "We couldn't send the email, but your link is ready to share yourself."}
+              </p>
+            )}
 
             <div className="mt-5 flex gap-2">
               <label htmlFor="share-url" className="sr-only">

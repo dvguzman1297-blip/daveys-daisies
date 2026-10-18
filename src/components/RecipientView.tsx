@@ -81,7 +81,7 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
         className="text-center"
       >
         <p className="text-sm font-bold uppercase tracking-widest text-sage-700">
-          {bouquet.sender_name} sent you flowers
+          {bouquet.anonymous ? "Someone" : bouquet.sender_name} sent you flowers
         </p>
         <h1 className="mt-2 font-display text-4xl text-ink sm:text-5xl">For {bouquet.recipient_name}</h1>
         <p className="mt-2 text-ink-soft">
@@ -119,7 +119,7 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
                 key="envelope"
                 type="button"
                 onClick={open}
-                aria-label={`Open the letter from ${bouquet.sender_name}`}
+                aria-label={bouquet.anonymous ? "Open your letter" : `Open the letter from ${bouquet.sender_name}`}
                 className="group relative block aspect-[3/2] w-full rounded-2xl shadow-soft focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blush-500"
                 style={{ backgroundColor: colors.body }}
                 initial={{ opacity: 0, y: 30, rotate: -3 }}
@@ -157,7 +157,9 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
                   }`}
                 >
                   <span className="w-full truncate font-hand text-2xl sm:text-3xl">For {bouquet.recipient_name}</span>
-                  <span className="w-full truncate text-xs font-semibold opacity-80">from {bouquet.sender_name}</span>
+                  {!bouquet.anonymous && (
+                    <span className="w-full truncate text-xs font-semibold opacity-80">from {bouquet.sender_name}</span>
+                  )}
                 </span>
                 {/* Wax seal: a gentle pulse says "tap me" */}
                 <motion.span

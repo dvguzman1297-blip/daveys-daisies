@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import {
+  ANONYMOUS_SIGNATURE,
   MAX_FLOWERS,
   MAX_MESSAGE_LENGTH,
   MAX_NAME_LENGTH,
@@ -10,6 +11,8 @@ import {
   isMusicTrackId,
   isVaseStyle,
 } from "@/lib/catalog";
+import { normalizeEmail } from "@/lib/email/address";
+import { rememberRecipientInMemory } from "@/lib/email/store";
 import { DB_SCHEMA, getSupabase, isSupabaseConfigured } from "@/lib/supabase/server";
 import { MAX_VIDEO_SECONDS, isYouTubeId } from "@/lib/youtube";
 import type { BouquetFlower, BouquetRecord, CreateBouquetInput } from "@/types/bouquet";
@@ -17,6 +20,8 @@ import type { BouquetFlower, BouquetRecord, CreateBouquetInput } from "@/types/b
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type NewBouquet = Omit<BouquetRecord, "id" | "created_at" | "youtube"> & {
+  /** Private: kept for the Report/Block link, never returned to browsers. */
+  recipient_email: string | null;
   /** Title and author are filled in from YouTube by the caller, never trusted from the client. */
   youtube: CreateBouquetInput["youtube"];
 };
@@ -38,7 +43,8 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
   const recipient = typeof i.recipientName === "string" ? i.recipientName.trim() : "";
   const message = typeof i.message === "string" ? i.message.trim() : "";
 
-  if (!sender || sender.length > MAX_NAME_LENGTH) return { ok: false, error: "Please add who it's from." };
+  const anonymous = i.anonymous === true;
+  if ((!anonymous && !sender) || sender.length > MAX_NAME_LENGTH) return { ok: false, error: "Please add who it's from." };
   if (!recipient || recipient.length > MAX_NAME_LENGTH) return { ok: false, error: "Please add who it's for." };
   if (!message || message.length > MAX_MESSAGE_LENGTH) return { ok: false, error: `Please write a letter (up to ${MAX_MESSAGE_LENGTH} characters).` };
   if (!isLetterTheme(i.theme)) return { ok: false, error: "Unknown letter theme." };
@@ -61,6 +67,11 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
     if (i.music != null) return { ok: false, error: "Pick either a song from the list or a YouTube clip." };
     youtube = { videoId, start: s, end: e };
   }
+  let recipientEmail: string | null = null;
+  if (typeof i.recipientEmail === "string" && i.recipientEmail.trim() !== "") {
+    recipientEmail = normalizeEmail(i.recipientEmail);
+    if (!recipientEmail) return { ok: false, error: "That email address doesn't look right." };
+  }
   if (!Array.isArray(i.flowers)) return { ok: false, error: "Invalid flowers." };
 
   const merged = new Map<string, BouquetFlower>();
@@ -79,7 +90,7 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
   return {
     ok: true,
     value: {
-      sender_name: sender,
+      sender_name: sender || ANONYMOUS_SIGNATURE,
       recipient_name: recipient,
       message,
       theme: i.theme,
@@ -87,6 +98,8 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
       flowers,
       music: i.music ?? null,
       youtube,
+      anonymous,
+      recipient_email: recipientEmail,
     },
   };
 }
@@ -104,11 +117,15 @@ const warnOnce = () => {
   warned = true;
 };
 
-export async function insertBouquet(bouquet: Omit<BouquetRecord, "id" | "created_at">): Promise<string> {
+export async function insertBouquet(
+  bouquet: Omit<BouquetRecord, "id" | "created_at"> & { recipient_email: string | null },
+): Promise<string> {
   if (shouldUseMemoryStore()) {
     warnOnce();
     const id = crypto.randomUUID();
-    memory.set(id, { ...bouquet, id, created_at: new Date().toISOString() });
+    const { recipient_email, ...record } = bouquet;
+    memory.set(id, { ...record, id, created_at: new Date().toISOString() });
+    rememberRecipientInMemory(id, recipient_email);
     return id;
   }
 
@@ -129,9 +146,13 @@ export const getBouquet = cache(async (id: string): Promise<BouquetRecord | null
   const { data, error } = await getSupabase()
     .schema(DB_SCHEMA)
     .from("bouquets")
-    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style, music, youtube")
+    // recipient_email is deliberately not selected: it must never reach the page or the browser.
+    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style, music, youtube, anonymous, reported_at")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`Failed to load bouquet: ${error.message}`);
-  return (data as BouquetRecord | null) ?? null;
+  if (!data || data.reported_at) return null; // reported letters are treated as gone
+  const { reported_at: _reported, ...bouquet } = data;
+  void _reported;
+  return bouquet as BouquetRecord;
 });
