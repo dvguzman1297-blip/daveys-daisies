@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Davey's Daisies
 
-## Getting Started
+Arrange a digital bouquet, write a letter, and share it with a link.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router, TypeScript) · Tailwind CSS v4 · Framer Motion · Lucide · canvas-confetti · Supabase · Vercel
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without Supabase env vars, dev mode uses an **in-memory store**, so the whole flow works right away. Bouquets are lost when the server restarts. Production refuses to run without Supabase.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Set up Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a project at [supabase.com](https://supabase.com).
+2. Apply the migration in `supabase/migrations/20261018000000_create_bouquets.sql`. It creates the `daveys_daisies` schema and the `daveys_daisies.bouquets` table.
+   - **Dashboard:** SQL Editor → paste the file → Run, or
+   - **CLI:** `npx supabase link --project-ref <ref>` then `npx supabase db push`.
+3. **Expose the schema:** go to Project Settings → Data API → **Exposed schemas**, add `daveys_daisies`, and save. Without this, queries fail with `Invalid schema: daveys_daisies`.
+4. Copy `.env.example` to `.env.local` and fill in values from **Project Settings → API**:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` (secret; server-only)
 
-## Learn More
+### Security model
 
-To learn more about Next.js, take a look at the following resources:
+All tables live in the `daveys_daisies` schema, which is granted only to `service_role`. The anon and authenticated roles have no grants, and RLS is enabled with no policies as a second layer. All access goes through the Next.js server with the service-role key:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Inserts happen in a Server Action (`src/app/actions.ts`) that re-validates every field.
+- Reads fetch **one row by UUID** (`src/lib/bouquets.ts`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The UUID acts as an unguessable link, and recipient pages are marked `noindex`.
 
-## Deploy on Vercel
+## Deploy to Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push to GitHub and import the repo in Vercel.
+2. Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as environment variables. `NEXT_PUBLIC_FACEBOOK_APP_ID` is optional; it enables the desktop Messenger dialog.
+3. Deploy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Before a public launch, add rate limiting to bouquet creation, for example a Vercel Firewall rule on `POST /create`.
+
+## Project map
+
+| Path | Purpose |
+| --- | --- |
+| `src/app/page.tsx` | Landing / hero |
+| `src/app/create/page.tsx` | Builder route |
+| `src/app/b/[id]/page.tsx` | Recipient view (server fetch + metadata) |
+| `src/app/actions.ts` | `createBouquet` Server Action |
+| `src/components/BouquetBuilder.tsx` | 3-step flow: flowers → letter → share |
+| `src/components/BouquetCanvas.tsx` | SVG bouquet with spring/bloom animations and a drop target |
+| `src/components/FlowerPicker.tsx` | Flower grid, counters, flower cap (`MAX_FLOWERS`), drag source |
+| `src/components/PresetPicker.tsx` | Ready-made bouquets (defined in `src/lib/catalog.ts`) |
+| `src/components/LetterForm.tsx` | Themed letter editor |
+| `src/components/ShareModal.tsx` | Copy link, WhatsApp / X / Messenger, QR code, confetti |
+| `src/components/RecipientView.tsx` | Bloom-in bouquet and envelope that opens |
+| `src/lib/arrangement.ts` | Deterministic stem layout derived from flower counts |
+| `src/lib/bouquets.ts` | Validation and data access (Supabase or dev memory store) |
+| `src/types/bouquet.ts` | Shared TypeScript interfaces |
