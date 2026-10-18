@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState, type DragEvent } from "react";
 import { CANVAS, arrangeBouquet, arrangeFoliage, foliageStemPath, stemPath } from "@/lib/arrangement";
-import { getFlower, isFlowerId } from "@/lib/catalog";
+import { getFlower, getVase, isFlowerId } from "@/lib/catalog";
 import type { BouquetFlower, FlowerId, VaseStyle } from "@/types/bouquet";
 import { FlowerDefs, FlowerHead } from "./flowers/FlowerArt";
 import { FoliageArt } from "./flowers/FoliageArt";
@@ -212,6 +212,7 @@ export function BouquetCanvas({
 function describe(flowers: BouquetFlower[], vase: VaseStyle) {
   if (flowers.length === 0) return "An empty vase";
   const parts = flowers.map((f) => `${f.name} × ${f.count}`);
-  const holder = vase === "glass" ? "a glass vase" : vase === "ribbon" ? "a ribbon wrap" : "kraft paper";
-  return `A bouquet of ${parts.join(", ")} in ${holder}`;
+  const holder = getVase(vase).name.toLowerCase();
+  // e.g. "A bouquet of Rose × 3, Daisy × 2 (mason jar)"
+  return `A bouquet of ${parts.join(", ")} (${holder})`;
 }

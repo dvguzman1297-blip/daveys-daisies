@@ -6,7 +6,7 @@ export type FlowerId =
   | "babys-breath"
   | "lavender";
 
-export type VaseStyle = "glass" | "ribbon" | "kraft";
+export type VaseStyle = "glass" | "ribbon" | "kraft" | "newspaper" | "tissue" | "mason" | "pitcher" | "basket";
 
 export type LetterTheme = "parchment" | "blush" | "midnight";
 

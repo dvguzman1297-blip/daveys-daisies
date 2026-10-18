@@ -12,14 +12,14 @@ interface VasePickerProps {
 export function VasePicker({ value, onChange }: VasePickerProps) {
   return (
     <fieldset>
-      <legend className="mb-2 font-display text-lg text-ink">Choose a wrap</legend>
-      <div className="grid grid-cols-3 gap-2" role="radiogroup">
+      <legend className="mb-2 font-display text-lg text-ink">Choose a wrap or vase</legend>
+      <div className="grid grid-cols-4 gap-2" role="radiogroup">
         {VASES.map((vase) => {
           const selected = vase.id === value;
           return (
             <label
               key={vase.id}
-              className={`flex cursor-pointer flex-col items-center rounded-2xl border p-2 text-xs font-semibold transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-sage-500 ${
+              className={`flex cursor-pointer flex-col items-center rounded-2xl border p-2 text-center text-xs leading-tight font-semibold transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-sage-500 ${
                 selected
                   ? "border-sage-500 bg-sage-100 text-sage-700"
                   : "border-sage-100 bg-white/70 text-ink-soft hover:border-sage-300"

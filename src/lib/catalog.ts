@@ -96,6 +96,11 @@ export const VASES: VaseDefinition[] = [
   { id: "glass", name: "Glass Vase" },
   { id: "ribbon", name: "Ribbon Wrap" },
   { id: "kraft", name: "Kraft Paper" },
+  { id: "newspaper", name: "Newspaper Wrap" },
+  { id: "tissue", name: "Lilac Tissue" },
+  { id: "mason", name: "Mason Jar" },
+  { id: "pitcher", name: "Ceramic Pitcher" },
+  { id: "basket", name: "Woven Basket" },
 ];
 
 export const THEMES: ThemeDefinition[] = [
@@ -132,3 +137,4 @@ export const isLetterTheme = (v: unknown): v is LetterTheme =>
 
 export const getFlower = (id: FlowerId) => FLOWERS.find((f) => f.id === id)!;
 export const getTheme = (id: LetterTheme) => THEMES.find((t) => t.id === id)!;
+export const getVase = (id: VaseStyle) => VASES.find((v) => v.id === id)!;
