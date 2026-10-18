@@ -6,6 +6,7 @@ import { lookupYouTube } from "@/app/actions";
 import { CLIP_DEFAULT_SECONDS, formatTime } from "@/lib/youtube";
 import { useYouTubeClip } from "@/lib/youtube-player";
 import type { YouTubeClip } from "@/types/bouquet";
+import { Skeleton } from "./Skeleton";
 
 const BAR_COUNT = 72;
 /** Shortest clip the handles allow, in seconds. */
@@ -38,47 +39,67 @@ export function YouTubeClipPicker({ value, onChange }: YouTubeClipPickerProps) {
   if (value) return <Trimmer key={value.videoId} clip={value} onChange={onChange} />;
 
   return (
-    <div className="rounded-2xl border border-sage-100 bg-white/70 p-3">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (link.trim()) add();
-        }}
-        className="flex gap-2"
-      >
-        <label htmlFor="youtube-link" className="sr-only">
-          YouTube link
-        </label>
-        <input
-          id="youtube-link"
-          type="url"
-          inputMode="url"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="Paste a YouTube link"
-          aria-invalid={!!error}
-          aria-describedby={error ? "youtube-error" : "youtube-hint"}
-          className="min-w-0 flex-1 rounded-xl border border-sage-100 bg-white px-3 py-2 text-sm text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-sage-500"
-        />
-        <button
-          type="submit"
-          disabled={looking || !link.trim()}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-sage-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-sage-700/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-500 disabled:opacity-60"
+    <>
+      <div className="rounded-2xl border border-sage-100 bg-white/70 p-3">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (link.trim()) add();
+          }}
+          className="flex gap-2"
         >
-          {looking ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Scissors className="size-4" aria-hidden="true" />}
-          Trim
-        </button>
-      </form>
-      {error ? (
-        <p id="youtube-error" role="alert" className="mt-2 text-xs font-semibold text-blush-700">
-          {error}
-        </p>
-      ) : (
-        <p id="youtube-hint" className="mt-2 text-xs text-ink-soft">
-          Then choose where it starts and stops, or send the whole song. Spotify links aren&apos;t
-          supported, so search the song on YouTube and paste that link.
-        </p>
-      )}
+          <label htmlFor="youtube-link" className="sr-only">
+            YouTube link
+          </label>
+          <input
+            id="youtube-link"
+            type="url"
+            inputMode="url"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            placeholder="Paste a YouTube link"
+            aria-invalid={!!error}
+            aria-describedby={error ? "youtube-error" : "youtube-hint"}
+            className="min-w-0 flex-1 rounded-xl border border-sage-100 bg-white px-3 py-2 text-sm text-ink outline-none transition placeholder:text-ink-soft/70 focus:border-sage-500"
+          />
+          <button
+            type="submit"
+            disabled={looking || !link.trim()}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-sage-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-sage-700/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-500 disabled:opacity-60"
+          >
+            {looking ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Scissors className="size-4" aria-hidden="true" />}
+            Trim
+          </button>
+        </form>
+        {error ? (
+          <p id="youtube-error" role="alert" className="mt-2 text-xs font-semibold text-blush-700">
+            {error}
+          </p>
+        ) : (
+          <p id="youtube-hint" className="mt-2 text-xs text-ink-soft">
+            Then choose where it starts and stops, or send the whole song. Spotify links aren&apos;t
+            supported, so search the song on YouTube and paste that link.
+          </p>
+        )}
+      </div>
+      {looking && <TrimmerSkeleton />}
+    </>
+  );
+}
+
+/** Stands in for the trimmer (title, video, play button and waveform strip) while a link is looked up. */
+function TrimmerSkeleton() {
+  return (
+    <div className="mt-3 flex flex-col gap-3 rounded-2xl border border-sage-100 bg-white/60 p-3" aria-hidden="true">
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-3 w-1/3" />
+      </div>
+      <Skeleton className="mx-auto aspect-video w-full max-w-sm" />
+      <div className="flex items-center gap-3">
+        <Skeleton className="size-10 shrink-0 rounded-full" />
+        <Skeleton className="h-14 flex-1" />
+      </div>
     </div>
   );
 }
@@ -194,11 +215,12 @@ function Trimmer({ clip, onChange }: { clip: YouTubeClip; onChange: (clip: YouTu
       </div>
 
       {/* YouTube requires the player to be visible while it plays. */}
-      <div className="relative mx-auto aspect-video w-full max-w-sm overflow-hidden rounded-xl bg-ink/10">
+      <div
+        className={`relative mx-auto aspect-video w-full max-w-sm overflow-hidden rounded-xl bg-sage-200/60 ${
+          !player.ready && !player.failed ? "animate-pulse motion-reduce:animate-none" : ""
+        }`}
+      >
         <div ref={containerRef} className="absolute inset-0" />
-        {!player.ready && !player.failed && (
-          <Loader2 className="absolute inset-0 m-auto size-6 animate-spin text-ink-soft" aria-hidden="true" />
-        )}
       </div>
 
       {player.failed ? (

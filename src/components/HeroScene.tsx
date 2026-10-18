@@ -16,15 +16,14 @@ const PETALS = [
 /**
  * The homepage hero: a bouquet with a letter and a song floating beside it,
  * so a visitor sees what they'd be sending, not just the flowers.
- * The letter and petals are decorative and hidden on small screens to keep the bouquet clear;
- * the music toggle stays on every screen size.
+ * The petals are decorative and only show from the sm breakpoint up.
  */
 export function HeroScene({ flowers, vase }: { flowers: BouquetFlower[]; vase: VaseStyle }) {
   return (
-    <div className="relative mx-auto -mt-6 w-full max-w-sm sm:-mt-10 lg:mt-0 lg:max-w-lg">
-      {/* Music toggle: sits above the bouquet on phones, floats at its top right from sm up. */}
+    <div className="relative mx-auto mt-2 w-full max-w-sm sm:-mt-10 lg:mt-0 lg:max-w-lg">
+      {/* Music toggle: centered over the top of the bouquet on phones, floating at its top right from sm up. */}
       <motion.div
-        className="relative z-10 mb-3 flex justify-center sm:absolute sm:right-[2%] sm:top-[10%] sm:mb-0 sm:block"
+        className="absolute inset-x-0 top-[3%] z-10 flex justify-center sm:inset-x-auto sm:right-[2%] sm:top-[10%] sm:block"
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 16, delay: 2.2 }}
@@ -54,13 +53,13 @@ export function HeroScene({ flowers, vase }: { flowers: BouquetFlower[]; vase: V
         flowers={flowers}
         vase={vase}
         bloomDelay={0.2}
-        className="aspect-[4/5] w-full sm:w-[88%]"
+        className="aspect-[4/5] w-[80%] sm:w-[88%]"
       />
 
       {/* Letter card, tucked in beside the vase */}
       <motion.div
         aria-hidden="true"
-        className="absolute bottom-[8%] right-0 hidden w-[52%] sm:block"
+        className="absolute bottom-[3%] right-0 w-[50%] sm:bottom-[8%] sm:w-[52%]"
         initial={{ opacity: 0, y: 24, rotate: 0 }}
         animate={{ opacity: 1, y: 0, rotate: 5 }}
         transition={{ type: "spring", stiffness: 120, damping: 16, delay: 1.7 }}
@@ -68,14 +67,14 @@ export function HeroScene({ flowers, vase }: { flowers: BouquetFlower[]; vase: V
         <motion.div
           animate={{ y: [0, -7, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="rounded-2xl border border-[#e6d6b3] bg-parchment p-4 text-ink shadow-soft"
+          className="rounded-2xl border border-[#e6d6b3] bg-parchment p-3 text-ink shadow-soft sm:p-4"
         >
           <p className="text-[10px] font-bold uppercase tracking-widest text-ink-soft">Dear</p>
-          <p className="font-display text-xl leading-tight">Someone Special,</p>
-          <p className="mt-2 font-hand text-xl leading-snug">
+          <p className="font-display text-lg leading-tight sm:text-xl">Someone Special,</p>
+          <p className="mt-1.5 font-hand text-lg leading-snug sm:mt-2 sm:text-xl">
             Thinking of you today, and every day. These are for you.
           </p>
-          <p className="mt-2 text-right font-hand text-lg leading-tight text-ink-soft">
+          <p className="mt-1.5 text-right font-hand text-base leading-tight text-ink-soft sm:mt-2 sm:text-lg">
             With love,
             <br />
             <span className="text-ink">Dave</span>
