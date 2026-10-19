@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { RecipientView } from "@/components/RecipientView";
 import { getBouquet } from "@/lib/bouquets";
+import { signVoiceUrls } from "@/lib/voice-storage";
 
 export async function generateMetadata(props: PageProps<"/b/[id]">): Promise<Metadata> {
   const { id } = await props.params;
@@ -25,5 +26,7 @@ export default async function BouquetPage(props: PageProps<"/b/[id]">) {
   const bouquet = await getBouquet(id);
   if (!bouquet) notFound();
 
-  return <RecipientView bouquet={bouquet} />;
+  const voice = bouquet.voice_path ? await signVoiceUrls(bouquet.voice_path) : null;
+
+  return <RecipientView bouquet={bouquet} voice={voice} />;
 }

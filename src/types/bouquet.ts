@@ -87,6 +87,16 @@ export interface YouTubeClip {
   end: number;
 }
 
+/** A recorded or chosen voice message, held in the browser until the bouquet is saved. */
+export interface VoiceDraft {
+  blob: Blob;
+  /** Base audio type without codec parameters, e.g. "audio/webm". */
+  mime: string;
+  seconds: number;
+  /** Object URL for previewing the audio in the builder. */
+  previewUrl: string;
+}
+
 export interface LetterDraft {
   to: string;
   from: string;
@@ -102,6 +112,8 @@ export interface LetterDraft {
   anonymous: boolean;
   /** Optional sign-off used instead of `from` when sending anonymously. */
   nickname: string;
+  /** Optional recording the recipient can play after opening the letter. */
+  voice: VoiceDraft | null;
 }
 
 /** Client-side builder state. */
@@ -123,6 +135,8 @@ export interface CreateBouquetInput {
   youtube: Pick<YouTubeClip, "videoId" | "start" | "end"> | null;
   recipientEmail: string | null;
   anonymous: boolean;
+  /** Already uploaded to storage (see createVoiceUpload); `seconds` is the clip length. */
+  voice: { path: string; seconds: number } | null;
 }
 
 /** Row in the Supabase `bouquets` table. */
@@ -139,6 +153,9 @@ export interface BouquetRecord {
   youtube: YouTubeClip | null;
   /** When true the sender's name is hidden from the page header, link previews and email. */
   anonymous: boolean;
+  /** Storage path of the voice message; the recipient page turns it into a short-lived link. */
+  voice_path: string | null;
+  voice_seconds: number | null;
 }
 
 /** What happened when we tried to email the recipient. */

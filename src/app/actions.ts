@@ -2,6 +2,7 @@
 
 import { insertBouquet, validateBouquet } from "@/lib/bouquets";
 import { sendBouquetEmail } from "@/lib/email/send";
+import { voiceExists } from "@/lib/voice-storage";
 import { parseYouTubeId } from "@/lib/youtube";
 import { fetchYouTubeInfo } from "@/lib/youtube-oembed";
 import type { CreateBouquetInput, CreateBouquetResult, EmailOutcome } from "@/types/bouquet";
@@ -28,6 +29,10 @@ export async function createBouquet(input: CreateBouquetInput): Promise<CreateBo
   }
 
   try {
+    // The audio was uploaded separately; make sure it really arrived before pointing a letter at it.
+    if (rest.voice_path && !(await voiceExists(rest.voice_path))) {
+      return { ok: false, error: "Your voice message didn't finish uploading. Please try again." };
+    }
     const id = await insertBouquet({ ...rest, youtube: clip, recipient_email });
     // The bouquet is saved either way; a problem with the email never loses it.
     let email: EmailOutcome | undefined;

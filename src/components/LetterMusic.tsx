@@ -29,7 +29,8 @@ export function useLetterMusic(track: MusicTrack | null) {
     const from = audio.volume;
     const t0 = performance.now();
     const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / FADE_MS);
+      // rAF timestamps can land slightly before t0, so clamp both ends (volume must stay in [0, 1]).
+      const p = Math.min(1, Math.max(0, (now - t0) / FADE_MS));
       audio.volume = from + (TARGET_VOLUME - from) * p;
       if (p < 1) fadeRef.current = requestAnimationFrame(step);
     };

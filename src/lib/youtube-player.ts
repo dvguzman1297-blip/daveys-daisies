@@ -113,7 +113,7 @@ export function useYouTubeClip(
         player.setVolume(0);
         const t0 = performance.now();
         const step = (now: number) => {
-          const p = Math.min(1, (now - t0) / FADE_MS);
+          const p = Math.min(1, Math.max(0, (now - t0) / FADE_MS));
           playerRef.current?.setVolume(Math.round(volume * p));
           if (p < 1) fadeRef.current = requestAnimationFrame(step);
         };

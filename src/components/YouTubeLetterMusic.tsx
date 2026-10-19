@@ -11,16 +11,21 @@ interface YouTubeLetterMusicProps {
   opened: boolean;
   /** Filled with a function that starts the clip; call it from the "open letter" click. */
   startRef: RefObject<(() => void) | null>;
+  /** Filled with a function that pauses the clip for a voice message and resumes it afterwards. */
+  duckRef: RefObject<((on: boolean) => void) | null>;
+  /** True while a voice message plays, so the "play" pill stays hidden. */
+  ducked: boolean;
 }
 
 /**
  * Plays the sender's trimmed YouTube clip on a loop. The player is created up
  * front so it's ready by the time the envelope is tapped, and stays hidden.
  */
-export function YouTubeLetterMusic({ clip, opened, startRef }: YouTubeLetterMusicProps) {
+export function YouTubeLetterMusic({ clip, opened, startRef, duckRef, ducked }: YouTubeLetterMusicProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const player = useYouTubeClip(containerRef, { videoId: clip.videoId, start: clip.start, end: clip.end, volume: 60 });
-  const { play } = player;
+  const { play, pause, playing } = player;
+  const resumeAfterVoice = useRef(false);
 
   useEffect(() => {
     startRef.current = () => play({ fade: true });
@@ -28,6 +33,21 @@ export function YouTubeLetterMusic({ clip, opened, startRef }: YouTubeLetterMusi
       startRef.current = null;
     };
   }, [play, startRef]);
+
+  useEffect(() => {
+    duckRef.current = (on) => {
+      if (on && playing) {
+        resumeAfterVoice.current = true;
+        pause();
+      } else if (!on && resumeAfterVoice.current) {
+        resumeAfterVoice.current = false;
+        play();
+      }
+    };
+    return () => {
+      duckRef.current = null;
+    };
+  }, [duckRef, playing, pause, play]);
 
   const credits = (
     <>
@@ -46,7 +66,7 @@ export function YouTubeLetterMusic({ clip, opened, startRef }: YouTubeLetterMusi
 
   return (
     <>
-      {opened && !player.playing && (
+      {opened && !player.playing && !ducked && (
         <MusicPlayer
           title={clip.title}
           credits={credits}

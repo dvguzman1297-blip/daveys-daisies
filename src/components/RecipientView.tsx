@@ -10,6 +10,7 @@ import type { BouquetRecord } from "@/types/bouquet";
 import { BouquetCanvas } from "./BouquetCanvas";
 import { LetterCard } from "./LetterCard";
 import { MusicPlayer, TrackCredits, useLetterMusic } from "./LetterMusic";
+import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 import { YouTubeLetterMusic } from "./YouTubeLetterMusic";
 
 const ENVELOPE: Record<BouquetRecord["theme"], { body: string; flap: string; seal: string }> = {
@@ -18,8 +19,17 @@ const ENVELOPE: Record<BouquetRecord["theme"], { body: string; flap: string; sea
   midnight: { body: "#2e3260", flap: "#383d72", seal: "#efc24a" },
 };
 
-export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
+export function RecipientView({
+  bouquet,
+  voice = null,
+}: {
+  bouquet: BouquetRecord;
+  voice?: { play: string; download: string } | null;
+}) {
   const [opened, setOpened] = useState(false);
+  const [voicePlaying, setVoicePlaying] = useState(false);
+  const duckYouTube = useRef<((on: boolean) => void) | null>(null);
+  const resumeTrack = useRef(false);
   const colors = ENVELOPE[bouquet.theme];
   const flowerCount = bouquet.flowers.reduce((s, f) => s + f.count, 0);
   const track = isMusicTrackId(bouquet.music) ? getMusic(bouquet.music) : null;
@@ -48,6 +58,19 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
       setSaveError(true);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Music steps aside while the voice message plays, then comes back.
+  const onVoicePlayingChange = (playing: boolean) => {
+    setVoicePlaying(playing);
+    duckYouTube.current?.(playing);
+    if (playing && music.playing) {
+      resumeTrack.current = true;
+      music.pause();
+    } else if (!playing && resumeTrack.current) {
+      resumeTrack.current = false;
+      music.play();
     }
   };
 
@@ -206,7 +229,18 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
           </AnimatePresence>
 
           {/* Music plays in the background with no controls; the pill only appears if it isn't playing. */}
-          {track && music.started && !music.playing && (
+          {opened && voice && bouquet.voice_seconds && (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
+              <VoiceMessagePlayer
+                src={voice.play}
+                downloadUrl={voice.download}
+                seconds={bouquet.voice_seconds}
+                title={bouquet.anonymous ? "A voice message for you" : `A voice message from ${bouquet.sender_name}`}
+                onPlayingChange={onVoicePlayingChange}
+              />
+            </motion.div>
+          )}
+          {track && music.started && !music.playing && !voicePlaying && (
             <MusicPlayer
               title={track.title}
               credits={<TrackCredits track={track} />}
@@ -249,7 +283,15 @@ export function RecipientView({ bouquet }: { bouquet: BouquetRecord }) {
             </p>
           )}
 
-          {bouquet.youtube && <YouTubeLetterMusic clip={bouquet.youtube} opened={opened} startRef={startYouTube} />}
+          {bouquet.youtube && (
+            <YouTubeLetterMusic
+              clip={bouquet.youtube}
+              opened={opened}
+              startRef={startYouTube}
+              duckRef={duckYouTube}
+              ducked={voicePlaying}
+            />
+          )}
 
         </div>
       </div>

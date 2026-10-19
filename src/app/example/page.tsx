@@ -28,6 +28,8 @@ const EXAMPLE: BouquetRecord = {
   music: "clair-de-lune",
   youtube: null,
   anonymous: false,
+  voice_path: null,
+  voice_seconds: null,
 };
 
 export default function ExamplePage() {

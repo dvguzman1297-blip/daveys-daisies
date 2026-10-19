@@ -1,12 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, EyeOff, Flower2, Link2, Loader2, Mail, Music, PenLine, Sparkles, User } from "lucide-react";
-import { useCallback, useMemo, useReducer, useState, useTransition } from "react";
+import { ArrowLeft, ArrowRight, EyeOff, Flower2, Link2, Loader2, Mail, Mic, Music, PenLine, Sparkles, User } from "lucide-react";
+import { useCallback, useMemo, useReducer, useRef, useState, useTransition } from "react";
 import { createBouquet } from "@/app/actions";
 import { totalFlowers } from "@/lib/arrangement";
 import { getMusic } from "@/lib/catalog";
 import { normalizeEmail } from "@/lib/email/address";
+import { uploadVoice } from "@/lib/voice-upload";
 import { formatTime } from "@/lib/youtube";
 import { builderReducer, initialBuilderState, signatureOf, validateLetter } from "@/lib/builder-state";
 import type { EmailOutcome, LetterDraft } from "@/types/bouquet";
@@ -37,6 +38,7 @@ export function BouquetBuilder({ initialAnonymous = false }: { initialAnonymous?
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailOutcome, setEmailOutcome] = useState<EmailOutcome | null>(null);
   const [saving, startSaving] = useTransition();
+  const uploadedVoice = useRef<{ blob: Blob; path: string } | null>(null);
 
   const total = totalFlowers(state.flowers);
   const shareUrl = useMemo(
@@ -71,6 +73,17 @@ export function BouquetBuilder({ initialAnonymous = false }: { initialAnonymous?
     }
     setEmailError(null);
     startSaving(async () => {
+      // Upload the voice message first. A retry reuses the file if nothing about the recording changed.
+      let voice: { path: string; seconds: number } | null = null;
+      const draft = state.letter.voice;
+      if (draft) {
+        if (uploadedVoice.current?.blob !== draft.blob) {
+          const uploaded = await uploadVoice(draft);
+          if (!uploaded.ok) return setSaveError(uploaded.error);
+          uploadedVoice.current = { blob: draft.blob, path: uploaded.path };
+        }
+        voice = { path: uploadedVoice.current.path, seconds: draft.seconds };
+      }
       const res = await createBouquet({
         senderName: signatureOf(state.letter),
         recipientName: state.letter.to,
@@ -86,6 +99,7 @@ export function BouquetBuilder({ initialAnonymous = false }: { initialAnonymous?
         },
         recipientEmail: recipientEmail || null,
         anonymous: state.letter.anonymous,
+        voice,
       });
       if (res.ok) {
         setEmailOutcome(res.email ?? null);
@@ -184,6 +198,12 @@ export function BouquetBuilder({ initialAnonymous = false }: { initialAnonymous?
                           ? `Plays ${formatTime(state.letter.youtube.start)}–${formatTime(state.letter.youtube.end)} of ${state.letter.youtube.title} when opened`
                           : `Plays ${getMusic(state.letter.music!).title} when opened`}
                       </span>
+                    </p>
+                  )}
+                  {state.letter.voice && (
+                    <p className="inline-flex items-center gap-2 self-start rounded-full bg-blush-100 px-3 py-1.5 text-sm font-semibold text-blush-700">
+                      <Mic className="size-4 shrink-0" aria-hidden="true" />
+                      Includes your {formatTime(state.letter.voice.seconds)} voice message
                     </p>
                   )}
                   <div className="rounded-3xl border border-sage-100 bg-white/70 p-5 shadow-soft">

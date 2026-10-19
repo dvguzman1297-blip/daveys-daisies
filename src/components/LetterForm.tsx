@@ -5,6 +5,7 @@ import { Check, EyeOff, User } from "lucide-react";
 import { ANONYMOUS_SIGNATURE, MAX_MESSAGE_LENGTH, MAX_NAME_LENGTH, THEMES, getTheme } from "@/lib/catalog";
 import type { LetterDraft, LetterTheme } from "@/types/bouquet";
 import { MusicPicker } from "./MusicPicker";
+import { VoiceRecorder } from "./VoiceRecorder";
 
 interface LetterFormProps {
   value: LetterDraft;
@@ -174,6 +175,8 @@ export function LetterForm({ value, onChange, errors = {} }: LetterFormProps) {
       </div>
 
       <MusicPicker value={value.music} youtube={value.youtube} onChange={(source) => onChange({ ...value, ...source })} />
+
+      <VoiceRecorder value={value.voice} anonymous={value.anonymous} onChange={(voice) => onChange({ ...value, voice })} />
     </motion.div>
   );
 }

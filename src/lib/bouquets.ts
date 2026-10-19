@@ -14,6 +14,7 @@ import {
 import { normalizeEmail } from "@/lib/email/address";
 import { rememberRecipientInMemory } from "@/lib/email/store";
 import { DB_SCHEMA, getSupabase, isSupabaseConfigured } from "@/lib/supabase/server";
+import { MAX_VOICE_SECONDS, VOICE_PATH_RE } from "@/lib/voice";
 import { MAX_VIDEO_SECONDS, isYouTubeId } from "@/lib/youtube";
 import type { BouquetFlower, BouquetRecord, CreateBouquetInput } from "@/types/bouquet";
 
@@ -67,6 +68,17 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
     if (i.music != null) return { ok: false, error: "Pick either a song from the list or a YouTube clip." };
     youtube = { videoId, start: s, end: e };
   }
+  let voicePath: string | null = null;
+  let voiceSeconds: number | null = null;
+  if (i.voice != null) {
+    const { path, seconds } = i.voice;
+    if (typeof path !== "string" || !VOICE_PATH_RE.test(path)) return { ok: false, error: "That voice message looks off. Please add it again." };
+    if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds <= 0 || seconds > MAX_VOICE_SECONDS) {
+      return { ok: false, error: `Voice messages can be up to ${MAX_VOICE_SECONDS / 60} minutes.` };
+    }
+    voicePath = path;
+    voiceSeconds = Math.max(1, Math.round(seconds));
+  }
   let recipientEmail: string | null = null;
   if (typeof i.recipientEmail === "string" && i.recipientEmail.trim() !== "") {
     recipientEmail = normalizeEmail(i.recipientEmail);
@@ -99,6 +111,8 @@ export function validateBouquet(input: unknown): { ok: true; value: NewBouquet }
       music: i.music ?? null,
       youtube,
       anonymous,
+      voice_path: voicePath,
+      voice_seconds: voiceSeconds,
       recipient_email: recipientEmail,
     },
   };
@@ -147,7 +161,7 @@ export const getBouquet = cache(async (id: string): Promise<BouquetRecord | null
     .schema(DB_SCHEMA)
     .from("bouquets")
     // recipient_email is deliberately not selected: it must never reach the page or the browser.
-    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style, music, youtube, anonymous, reported_at")
+    .select("id, created_at, sender_name, recipient_name, message, theme, flowers, vase_style, music, youtube, anonymous, voice_path, voice_seconds, reported_at")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(`Failed to load bouquet: ${error.message}`);
