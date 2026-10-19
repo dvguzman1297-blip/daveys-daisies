@@ -31,6 +31,41 @@ export const FLOWERS: FlowerDefinition[] = [
 
 export const PRESETS: BouquetPreset[] = [
   {
+    id: "autumn-harvest",
+    name: "Autumn Harvest",
+    description: "Sunflowers, marigolds and golden wheat in a woven basket",
+    vase: "basket",
+    flowers: [
+      { id: "sunflower", count: 3 },
+      { id: "marigold", count: 4 },
+      { id: "chrysanthemum", count: 3 },
+      { id: "wheat", count: 3 },
+    ],
+  },
+  {
+    id: "maple-glow",
+    name: "Maple Glow",
+    description: "Burgundy dahlias and rust mums wrapped in kraft paper",
+    vase: "kraft",
+    flowers: [
+      { id: "dahlia", count: 4 },
+      { id: "chrysanthemum", count: 4 },
+      { id: "rose", count: 2 },
+      { id: "wheat", count: 2 },
+    ],
+  },
+  {
+    id: "pumpkin-patch",
+    name: "Pumpkin Patch",
+    description: "Orange marigolds and mums in a twine-tied mason jar",
+    vase: "mason",
+    flowers: [
+      { id: "marigold", count: 5 },
+      { id: "chrysanthemum", count: 3 },
+      { id: "wheat", count: 2 },
+    ],
+  },
+  {
     id: "classic-romance",
     name: "Classic Romance",
     description: "Red roses with a cloud of baby's breath",
@@ -163,41 +198,6 @@ export const PRESETS: BouquetPreset[] = [
     flowers: [
       { id: "tulip", count: 3 },
       { id: "babys-breath", count: 2 },
-    ],
-  },
-  {
-    id: "autumn-harvest",
-    name: "Autumn Harvest",
-    description: "Sunflowers, marigolds and golden wheat in a woven basket",
-    vase: "basket",
-    flowers: [
-      { id: "sunflower", count: 3 },
-      { id: "marigold", count: 4 },
-      { id: "chrysanthemum", count: 3 },
-      { id: "wheat", count: 3 },
-    ],
-  },
-  {
-    id: "maple-glow",
-    name: "Maple Glow",
-    description: "Burgundy dahlias and rust mums wrapped in kraft paper",
-    vase: "kraft",
-    flowers: [
-      { id: "dahlia", count: 4 },
-      { id: "chrysanthemum", count: 4 },
-      { id: "rose", count: 2 },
-      { id: "wheat", count: 2 },
-    ],
-  },
-  {
-    id: "pumpkin-patch",
-    name: "Pumpkin Patch",
-    description: "Orange marigolds and mums in a twine-tied mason jar",
-    vase: "mason",
-    flowers: [
-      { id: "marigold", count: 5 },
-      { id: "chrysanthemum", count: 3 },
-      { id: "wheat", count: 2 },
     ],
   },
 ];
