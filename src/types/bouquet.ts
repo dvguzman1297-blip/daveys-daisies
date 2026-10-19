@@ -4,7 +4,11 @@ export type FlowerId =
   | "rose"
   | "tulip"
   | "babys-breath"
-  | "lavender";
+  | "lavender"
+  | "chrysanthemum"
+  | "marigold"
+  | "dahlia"
+  | "wheat";
 
 export type VaseStyle = "glass" | "ribbon" | "kraft" | "newspaper" | "tissue" | "mason" | "pitcher" | "basket";
 

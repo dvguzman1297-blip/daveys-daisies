@@ -53,6 +53,10 @@ const FLOWER_SIZE: Record<FlowerId, number> = {
   daisy: 0.9,
   "babys-breath": 1.2,
   lavender: 1,
+  chrysanthemum: 1,
+  marigold: 0.95,
+  dahlia: 1.05,
+  wheat: 1,
 };
 
 /** The dome is an ellipse whose size grows with the number of flowers. */

@@ -124,6 +124,120 @@ function Lavender() {
   );
 }
 
+function Chrysanthemum() {
+  return (
+    <g>
+      {range(24).map((i) => (
+        <ellipse
+          key={`o${i}`}
+          cx={0}
+          cy={-20}
+          rx={3.6}
+          ry={15}
+          fill={i % 2 ? "#d9622b" : "#c9501f"}
+          transform={`rotate(${(360 / 24) * i})`}
+        />
+      ))}
+      {range(16).map((i) => (
+        <ellipse
+          key={`i${i}`}
+          cx={0}
+          cy={-12}
+          rx={3}
+          ry={10}
+          fill={i % 2 ? "#f08a3c" : "#e87a2e"}
+          transform={`rotate(${(360 / 16) * i + 11})`}
+        />
+      ))}
+      <circle r={6} fill="#f6b04a" />
+    </g>
+  );
+}
+
+function Marigold() {
+  return (
+    <g>
+      {range(16).map((i) => (
+        <ellipse
+          key={`o${i}`}
+          cx={0}
+          cy={-19}
+          rx={7}
+          ry={13}
+          fill={i % 2 ? "#f2a516" : "#e8920c"}
+          stroke="#c97a08"
+          strokeWidth={0.6}
+          transform={`rotate(${(360 / 16) * i})`}
+        />
+      ))}
+      {range(10).map((i) => (
+        <ellipse
+          key={`i${i}`}
+          cx={0}
+          cy={-11}
+          rx={5.5}
+          ry={9}
+          fill={i % 2 ? "#f7bd3a" : "#f2a516"}
+          transform={`rotate(${(360 / 10) * i + 18})`}
+        />
+      ))}
+      <circle r={5} fill="#c9650a" />
+    </g>
+  );
+}
+
+function Dahlia() {
+  return (
+    <g>
+      {range(16).map((i) => (
+        <path
+          key={`o${i}`}
+          d="M0 -8 C 7 -16, 6 -27, 0 -35 C -6 -27, -7 -16, 0 -8 Z"
+          fill={i % 2 ? "#a3203f" : "#8c1833"}
+          transform={`rotate(${(360 / 16) * i})`}
+        />
+      ))}
+      {range(12).map((i) => (
+        <path
+          key={`m${i}`}
+          d="M0 -5 C 5 -11, 4 -19, 0 -26 C -4 -19, -5 -11, 0 -5 Z"
+          fill={i % 2 ? "#c23a58" : "#b02e4c"}
+          transform={`rotate(${(360 / 12) * i + 15})`}
+        />
+      ))}
+      {range(8).map((i) => (
+        <path
+          key={`n${i}`}
+          d="M0 -2 C 3 -7, 3 -12, 0 -16 C -3 -12, -3 -7, 0 -2 Z"
+          fill={i % 2 ? "#e0607a" : "#d44e6b"}
+          transform={`rotate(${(360 / 8) * i})`}
+        />
+      ))}
+      <circle r={2.6} fill="#f2c94c" />
+    </g>
+  );
+}
+
+function Wheat() {
+  return (
+    <g>
+      {range(7).map((i) => {
+        const y = 14 - i * 8.5;
+        return (
+          <g key={i}>
+            <ellipse cx={-4.5} cy={y} rx={2.8} ry={5.5} fill={i % 2 ? "#d9a441" : "#c9932f"} transform={`rotate(-28 -4.5 ${y})`} />
+            <ellipse cx={4.5} cy={y - 2} rx={2.8} ry={5.5} fill={i % 2 ? "#c9932f" : "#e0b052"} transform={`rotate(28 4.5 ${y - 2})`} />
+          </g>
+        );
+      })}
+      <ellipse cx={0} cy={-52} rx={2.8} ry={6} fill="#e0b052" />
+      {range(5).map((i) => (
+        <line key={i} x1={0} y1={-56} x2={(i - 2) * 2.5} y2={-72} stroke="#d9b866" strokeWidth={0.9} />
+      ))}
+    </g>
+  );
+}
+
 const ART: Record<FlowerId, () => React.JSX.Element> = {
   daisy: Daisy,
   sunflower: Sunflower,
@@ -131,6 +245,10 @@ const ART: Record<FlowerId, () => React.JSX.Element> = {
   tulip: Tulip,
   "babys-breath": BabysBreath,
   lavender: Lavender,
+  chrysanthemum: Chrysanthemum,
+  marigold: Marigold,
+  dahlia: Dahlia,
+  wheat: Wheat,
 };
 
 export function FlowerHead({ id }: { id: FlowerId }) {
