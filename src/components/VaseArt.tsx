@@ -25,7 +25,11 @@ const WRAPS: Partial<Record<VaseStyle, WrapColors>> = {
 
 const WRAP_OUTLINE = "M88 322 L180 482 L220 482 L312 322 L262 344 L200 330 L138 344 Z";
 
-/** Gradients, filters and clips shared by every vessel. Rendered by both layers. */
+/**
+ * Gradients, filters and clips shared by every vessel. Mount exactly ONE per
+ * document (the root layout does, via <SvgDefs />); a standalone SVG export
+ * embeds its own. Duplicate ids break Safari.
+ */
 export function VaseDefs() {
   return (
     <defs>
@@ -103,7 +107,6 @@ export function VaseBack({ style }: { style: VaseStyle }) {
   if (wrap) {
     return (
       <g>
-        <VaseDefs />
         {shadow}
         <path d="M96 318 L200 286 L304 318 L250 360 L150 360 Z" fill={wrap.back} filter={style === "tissue" ? undefined : "url(#vase-grain)"} />
         {style === "tissue" && (
@@ -127,7 +130,6 @@ export function VaseBack({ style }: { style: VaseStyle }) {
     const handle = "M128 342 C 120 170, 280 170, 272 342";
     return (
       <g>
-        <VaseDefs />
         {shadow}
         <path d={handle} fill="none" stroke="#8f6330" strokeWidth={15} strokeLinecap="round" />
         <path d={handle} fill="none" stroke="#b7864f" strokeWidth={11} strokeLinecap="round" />
@@ -139,7 +141,6 @@ export function VaseBack({ style }: { style: VaseStyle }) {
   if (style === "pitcher") {
     return (
       <g>
-        <VaseDefs />
         {shadow}
         <ellipse cx={200} cy={336} rx={50} ry={9} fill="#4a6445" />
         <ellipse cx={200} cy={338} rx={44} ry={6} fill="#2f4a2b" opacity={0.55} />
@@ -150,7 +151,6 @@ export function VaseBack({ style }: { style: VaseStyle }) {
   const jar = style === "mason";
   return (
     <g>
-      <VaseDefs />
       {shadow}
       {jar ? (
         <>
@@ -167,12 +167,8 @@ export function VaseBack({ style }: { style: VaseStyle }) {
   );
 }
 
-/**
- * Front layer: drawn over the stems. Carries its own gradients and filters
- * unless `withDefs` is false, for a page that renders one <VaseDefs /> shared by
- * several vessels (the picker).
- */
-export function VaseFront({ style, withDefs = true }: { style: VaseStyle; withDefs?: boolean }) {
+/** Front layer: drawn over the stems. Relies on <VaseDefs /> being mounted once for the document. */
+export function VaseFront({ style }: { style: VaseStyle }) {
   const wrap = WRAPS[style];
   let art;
   if (wrap) art = <Wrap style={style} colors={wrap} />;
@@ -180,12 +176,7 @@ export function VaseFront({ style, withDefs = true }: { style: VaseStyle; withDe
   else if (style === "pitcher") art = <Pitcher />;
   else if (style === "basket") art = <Basket />;
   else art = <GlassVase />;
-  return (
-    <g>
-      {withDefs && <VaseDefs />}
-      {art}
-    </g>
-  );
+  return <g>{art}</g>;
 }
 
 const GLASS_BODY = "M140 336 C 138 380, 150 440, 154 470 Q 200 488 246 470 C 250 440, 262 380, 260 336";

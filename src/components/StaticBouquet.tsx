@@ -2,7 +2,7 @@ import { arrangeBouquet, arrangeFoliage, foliageStemPath, stemPath } from "@/lib
 import type { BouquetFlower, VaseStyle } from "@/types/bouquet";
 import { FlowerDefs, FlowerHead } from "./flowers/FlowerArt";
 import { FoliageArt } from "./flowers/FoliageArt";
-import { VaseBack, VaseFront } from "./VaseArt";
+import { VaseBack, VaseDefs, VaseFront } from "./VaseArt";
 
 /**
  * The bouquet drawn once, with no animation or interactivity, so it can be
@@ -16,7 +16,9 @@ export function StaticBouquet({ flowers, vase }: { flowers: BouquetFlower[]; vas
 
   return (
     <>
+      {/* A standalone export has no page around it, so it carries its own gradients and filters */}
       <FlowerDefs />
+      <VaseDefs />
       <VaseBack style={vase} />
       {foliage.map((leaf) => (
         <path

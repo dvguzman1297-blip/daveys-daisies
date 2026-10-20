@@ -583,20 +583,22 @@ const ALL_FLOWER_IDS = Object.keys(ART) as FlowerId[];
  * re-creating hundreds of SVG nodes per head. `prefix` keeps the ids unique to
  * whichever component owns the sprite. Memoized: the art never changes, so it
  * only re-renders if the prefix or the set of flowers does.
+ *
+ * This does NOT include the shared gradients and filters (FlowerDefs): those
+ * are mounted once for the whole page by <SvgDefs /> in the root layout.
+ * Duplicate ids break Safari, which keeps pointing at a copy that has since
+ * been removed from the page.
  */
 export const FlowerSpriteDefs = memo(
   function FlowerSpriteDefs({ prefix, ids = ALL_FLOWER_IDS }: { prefix: string; ids?: FlowerId[] }) {
     return (
-      <>
-        <FlowerDefs />
-        <defs>
-          {ids.map((id) => (
-            <g key={id} id={`${prefix}${id}`}>
-              <FlowerHead id={id} />
-            </g>
-          ))}
-        </defs>
-      </>
+      <defs>
+        {ids.map((id) => (
+          <g key={id} id={`${prefix}${id}`}>
+            <FlowerHead id={id} />
+          </g>
+        ))}
+      </defs>
     );
   },
   (a, b) => a.prefix === b.prefix && (a.ids ?? ALL_FLOWER_IDS).join() === (b.ids ?? ALL_FLOWER_IDS).join(),
@@ -617,7 +619,8 @@ export function FlowerSprite({ prefix, ids }: { prefix: string; ids?: FlowerId[]
 }
 
 /**
- * Shared SVG gradient and filter defs. Render once inside any <svg> using FlowerHead.
+ * Shared SVG gradient and filter defs. Mount exactly ONE per document (the root
+ * layout does, via <SvgDefs />); a standalone SVG export embeds its own.
  * Petal gradients are base-centered (cx 0.5, cy 1) so the base is shaded and
  * the tip catches the light.
  */
@@ -762,21 +765,14 @@ export function FlowerDefs() {
 }
 
 /**
- * Thumbnail of one flower. On its own it carries everything it needs; pass
- * `spritePrefix` when a FlowerSprite with that prefix is on the page, so a
- * grid of thumbnails shares one copy of the art instead of one each.
+ * Thumbnail of one flower. Pass `spritePrefix` when a FlowerSprite with that
+ * prefix is on the page, so a grid of thumbnails shares one copy of the art
+ * instead of drawing one each. Relies on <SvgDefs /> (root layout) for gradients.
  */
 export function FlowerThumbnail({ id, className, spritePrefix }: { id: FlowerId; className?: string; spritePrefix?: string }) {
   return (
     <svg viewBox="-45 -45 90 90" className={className} aria-hidden="true">
-      {spritePrefix ? (
-        <FlowerRef id={id} prefix={spritePrefix} />
-      ) : (
-        <>
-          <FlowerDefs />
-          <FlowerHead id={id} />
-        </>
-      )}
+      {spritePrefix ? <FlowerRef id={id} prefix={spritePrefix} /> : <FlowerHead id={id} />}
     </svg>
   );
 }

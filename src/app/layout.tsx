@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Fraunces, Nunito } from "next/font/google";
 import { MotionProvider } from "@/components/MotionProvider";
+import { SvgDefs } from "@/components/SvgDefs";
 import "./globals.css";
 
 const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"] });
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${nunito.variable} ${fraunces.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <SvgDefs />
         <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
