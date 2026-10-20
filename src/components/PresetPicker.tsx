@@ -5,9 +5,11 @@ import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { PRESETS, getVase } from "@/lib/catalog";
 import type { BouquetFlower, BouquetPreset, VaseStyle } from "@/types/bouquet";
-import { FlowerDefs, FlowerHead } from "./flowers/FlowerArt";
+import { FlowerRef } from "./flowers/FlowerArt";
 
 interface PresetPickerProps {
+  /** Prefix of a FlowerSprite on the page that holds the flower art. */
+  spritePrefix: string;
   flowers: BouquetFlower[];
   vase: VaseStyle;
   onSelect: (preset: BouquetPreset) => void;
@@ -21,7 +23,7 @@ const matches = (preset: BouquetPreset, flowers: BouquetFlower[], vase: VaseStyl
 /** Presets shown in the desktop grid before "Show more" (phones scroll through all). */
 const INITIAL_VISIBLE = 6;
 
-export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
+export function PresetPicker({ spritePrefix, flowers, vase, onSelect }: PresetPickerProps) {
   const [expanded, setExpanded] = useState(false);
   const hiddenCount = PRESETS.length - INITIAL_VISIBLE;
 
@@ -40,7 +42,7 @@ export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
           return (
             <li
               key={preset.id}
-              className={`w-40 shrink-0 snap-start sm:w-auto ${!expanded && index >= INITIAL_VISIBLE ? "sm:hidden" : ""}`}
+              className={`flex w-40 shrink-0 snap-start sm:w-auto ${!expanded && index >= INITIAL_VISIBLE ? "sm:hidden" : ""}`}
             >
               <motion.button
                 type="button"
@@ -49,7 +51,7 @@ export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                className={`relative flex h-full w-full flex-col items-center rounded-2xl border bg-white/80 p-3 text-center shadow-soft transition focus-visible:outline-2 focus-visible:outline-sage-500 ${
+                className={`relative flex w-full flex-col items-center rounded-2xl border bg-white/80 p-3 text-center shadow-soft transition focus-visible:outline-2 focus-visible:outline-sage-500 ${
                   selected ? "border-sage-500 ring-2 ring-sage-200" : "border-sage-100 hover:border-sage-300"
                 }`}
               >
@@ -58,13 +60,18 @@ export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
                     <Check className="size-3" aria-hidden="true" />
                   </span>
                 )}
-                <PresetCluster preset={preset} />
-                <span className="mt-1 text-sm font-bold text-ink">{preset.name}</span>
-                <span className="text-xs text-ink-soft">{preset.description}</span>
-                <span className="mt-1.5 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-bold text-sage-700">
-                  {total} flowers · {getVase(preset.vase).name}
+                <PresetCluster preset={preset} spritePrefix={spritePrefix} />
+                {/* Two lines reserved on phones so descriptions start at the same height */}
+                <span className="mt-1 flex min-h-10 items-center text-sm leading-tight font-bold text-ink sm:min-h-0">
+                  {preset.name}
                 </span>
-              </motion.button>
+                {/* flex-1 soaks up spare height, so the footer below sits at the bottom of every card */}
+                <span className="mt-0.5 mb-2 flex-1 text-xs leading-snug text-ink-soft">{preset.description}</span>
+                {/* Same size on every card: flower count over wrap name, never wrapping */}
+                <span className="flex w-full flex-col items-center rounded-2xl bg-sage-100 px-2 py-1.5 text-[11px] leading-tight text-sage-700">
+                  <span className="font-bold whitespace-nowrap">{total} flowers</span>
+                  <span className="whitespace-nowrap">{getVase(preset.vase).name}</span>
+                </span>              </motion.button>
             </li>
           );
         })}
@@ -88,7 +95,7 @@ export function PresetPicker({ flowers, vase, onSelect }: PresetPickerProps) {
 }
 
 /** Small overlapping cluster of the preset's three most plentiful flowers. */
-function PresetCluster({ preset }: { preset: BouquetPreset }) {
+function PresetCluster({ preset, spritePrefix }: { preset: BouquetPreset; spritePrefix: string }) {
   const top = [...preset.flowers].sort((a, b) => b.count - a.count).slice(0, 3);
   // Draw sides first, then the most plentiful flower in front-centre.
   const slots = [
@@ -99,10 +106,9 @@ function PresetCluster({ preset }: { preset: BouquetPreset }) {
   const placed = top.map((f, i) => ({ ...f, ...slots[i] })).reverse();
   return (
     <svg viewBox="-62 -42 124 82" className="h-16 w-24" aria-hidden="true">
-      <FlowerDefs />
       {placed.map((f) => (
         <g key={f.id} transform={`translate(${f.x} ${f.y}) scale(${f.s})`}>
-          <FlowerHead id={f.id} />
+          <FlowerRef id={f.id} prefix={spritePrefix} />
         </g>
       ))}
     </svg>

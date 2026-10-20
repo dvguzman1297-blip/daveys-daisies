@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, EyeOff, Flower2, Link2, Loader2, Mail, Mic, Music, PenLine, Sparkles, User } from "lucide-react";
-import { useCallback, useMemo, useReducer, useRef, useState, useTransition } from "react";
+import { useCallback, useId, useMemo, useReducer, useRef, useState, useTransition } from "react";
 import { createBouquet } from "@/app/actions";
 import { totalFlowers } from "@/lib/arrangement";
 import { getMusic } from "@/lib/catalog";
@@ -13,6 +13,7 @@ import { builderReducer, initialBuilderState, signatureOf, validateLetter } from
 import type { EmailOutcome, LetterDraft } from "@/types/bouquet";
 import { BouquetCanvas } from "./BouquetCanvas";
 import { FlowerPicker } from "./FlowerPicker";
+import { FlowerSprite } from "./flowers/FlowerArt";
 import { LetterCard } from "./LetterCard";
 import { LetterForm } from "./LetterForm";
 import { PresetPicker } from "./PresetPicker";
@@ -31,6 +32,7 @@ export function BouquetBuilder({ initialAnonymous = false }: { initialAnonymous?
     letter: { ...initialBuilderState.letter, anonymous },
   }));
   const [step, setStep] = useState(0);
+  const spritePrefix = `bb${useId().replace(/:/g, "")}-`;
   const [letterErrors, setLetterErrors] = useState<Partial<Record<keyof LetterDraft, string>>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -149,12 +151,16 @@ export function BouquetBuilder({ initialAnonymous = false }: { initialAnonymous?
             >
               {step === 0 && (
                 <div className="flex flex-col gap-8">
+                  {/* One copy of the flower art, shared by every thumbnail and preset card below */}
+                  <FlowerSprite prefix={spritePrefix} />
                   <PresetPicker
                     flowers={state.flowers}
                     vase={state.vase}
+                    spritePrefix={spritePrefix}
                     onSelect={(preset) => edit({ type: "loadPreset", preset })}
                   />
                   <FlowerPicker
+                    spritePrefix={spritePrefix}
                     flowers={state.flowers}
                     total={total}
                     onAdd={(id) => edit({ type: "add", id })}

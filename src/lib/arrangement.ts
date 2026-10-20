@@ -57,6 +57,10 @@ const FLOWER_SIZE: Record<FlowerId, number> = {
   marigold: 0.95,
   dahlia: 1.05,
   wheat: 1,
+  peony: 1.1,
+  poppy: 1,
+  hydrangea: 1.15,
+  aster: 0.85,
 };
 
 /** The dome is an ellipse whose size grows with the number of flowers. */

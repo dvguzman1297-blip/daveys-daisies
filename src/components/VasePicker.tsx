@@ -2,7 +2,7 @@
 
 import { VASES } from "@/lib/catalog";
 import type { VaseStyle } from "@/types/bouquet";
-import { VaseFront } from "./VaseArt";
+import { VaseDefs, VaseFront } from "./VaseArt";
 
 interface VasePickerProps {
   value: VaseStyle;
@@ -13,6 +13,10 @@ export function VasePicker({ value, onChange }: VasePickerProps) {
   return (
     <fieldset>
       <legend className="mb-2 font-display text-lg text-ink">Choose a wrap or vase</legend>
+      {/* Gradients and filters shared by all the icons below */}
+      <svg width={0} height={0} aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
+        <VaseDefs />
+      </svg>
       <div className="grid grid-cols-4 gap-2" role="radiogroup">
         {VASES.map((vase) => {
           const selected = vase.id === value;
@@ -34,7 +38,7 @@ export function VasePicker({ value, onChange }: VasePickerProps) {
                 className="sr-only"
               />
               <svg viewBox="80 280 240 210" className="h-12 w-14" aria-hidden="true">
-                <VaseFront style={vase.id} />
+                <VaseFront style={vase.id} withDefs={false} />
               </svg>
               {vase.name}
             </label>

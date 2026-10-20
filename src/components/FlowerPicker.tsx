@@ -8,6 +8,8 @@ import { FLOWER_DRAG_TYPE } from "./BouquetCanvas";
 import { FlowerThumbnail } from "./flowers/FlowerArt";
 
 interface FlowerPickerProps {
+  /** Prefix of a FlowerSprite on the page that holds the flower art. */
+  spritePrefix: string;
   flowers: BouquetFlower[];
   total: number;
   onAdd: (id: FlowerId) => void;
@@ -15,7 +17,7 @@ interface FlowerPickerProps {
   onClear: () => void;
 }
 
-export function FlowerPicker({ flowers, total, onAdd, onRemove, onClear }: FlowerPickerProps) {
+export function FlowerPicker({ spritePrefix, flowers, total, onAdd, onRemove, onClear }: FlowerPickerProps) {
   const full = total >= MAX_FLOWERS;
   const countOf = (id: FlowerId) => flowers.find((f) => f.id === id)?.count ?? 0;
 
@@ -84,7 +86,7 @@ export function FlowerPicker({ flowers, total, onAdd, onRemove, onClear }: Flowe
                     whileTap={full ? undefined : { scale: 0.9 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                   >
-                    <FlowerThumbnail id={flower.id} className="size-16 sm:size-20" />
+                    <FlowerThumbnail id={flower.id} spritePrefix={spritePrefix} className="size-16 sm:size-20" />
                   </motion.span>
                   <span className="mt-1 text-sm font-bold text-ink">{flower.name}</span>
                   <span className="text-xs text-ink-soft">{flower.meaning}</span>

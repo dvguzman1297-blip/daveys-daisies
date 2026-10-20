@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState, type DragEvent } from "react";
+import { useId, useMemo, useState, type DragEvent } from "react";
 import { CANVAS, arrangeBouquet, arrangeFoliage, foliageStemPath, stemPath } from "@/lib/arrangement";
 import { getFlower, getVase, isFlowerId } from "@/lib/catalog";
 import type { BouquetFlower, FlowerId, VaseStyle } from "@/types/bouquet";
-import { FlowerDefs, FlowerHead } from "./flowers/FlowerArt";
+import { FlowerRef, FlowerSpriteDefs } from "./flowers/FlowerArt";
 import { FoliageArt } from "./flowers/FoliageArt";
 import { VaseBack, VaseFront } from "./VaseArt";
 
@@ -40,6 +40,9 @@ export function BouquetCanvas({
     [stems],
   );
   const foliage = useMemo(() => arrangeFoliage(stems.length), [stems.length]);
+  // Each flower type is drawn once into <defs>; every head is then a cheap <use> of it.
+  const spritePrefix = `bq${useId().replace(/:/g, "")}-`;
+  const flowerKinds = useMemo(() => [...new Set(flowers.map((f) => f.id))], [flowers]);
   const [dragOver, setDragOver] = useState(false);
   const editable = mode === "edit";
 
@@ -77,7 +80,7 @@ export function BouquetCanvas({
         role="img"
         aria-label={describe(flowers, vase)}
       >
-        <FlowerDefs />
+        <FlowerSpriteDefs prefix={spritePrefix} ids={flowerKinds} />
         <VaseBack style={vase} />
 
         {/* Foliage sprigs (behind the flower stems) */}
@@ -186,7 +189,7 @@ export function BouquetCanvas({
                   <title>{editable ? `${name} — tap to remove` : name}</title>
                   {/* Invisible hit area so hover/tap is forgiving */}
                   <circle r={34} fill="transparent" />
-                  <FlowerHead id={s.flowerId} />
+                  <FlowerRef id={s.flowerId} prefix={spritePrefix} />
                 </motion.g>
               </motion.g>
             );

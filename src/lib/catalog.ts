@@ -22,14 +22,32 @@ export const FLOWERS: FlowerDefinition[] = [
   { id: "rose", name: "Rose", meaning: "Love & admiration" },
   { id: "tulip", name: "Tulip", meaning: "Perfect love" },
   { id: "babys-breath", name: "Baby's Breath", meaning: "Everlasting love" },
+  { id: "aster", name: "White Aster", meaning: "Patience & gentle love" },
   { id: "lavender", name: "Lavender", meaning: "Devotion & calm" },
   { id: "chrysanthemum", name: "Chrysanthemum", meaning: "Joy & long life" },
   { id: "marigold", name: "Marigold", meaning: "Warmth & remembrance" },
   { id: "dahlia", name: "Dahlia", meaning: "Elegance & commitment" },
   { id: "wheat", name: "Wheat", meaning: "Prosperity & gratitude" },
+  { id: "peony", name: "Peony", meaning: "Romance & good fortune" },
+  { id: "poppy", name: "Poppy", meaning: "Remembrance & imagination" },
+  { id: "hydrangea", name: "Hydrangea", meaning: "Heartfelt gratitude" },
 ];
 
 export const PRESETS: BouquetPreset[] = [
+  // Autumn
+  {
+    id: "autumn-in-december",
+    name: "Autumn's in December",
+    description: "Burgundy dahlias, rust mums, marigolds and sunflowers, with golden wheat, in kraft paper",
+    vase: "kraft",
+    flowers: [
+      { id: "dahlia", count: 3 },
+      { id: "chrysanthemum", count: 3 },
+      { id: "marigold", count: 3 },
+      { id: "sunflower", count: 2 },
+      { id: "wheat", count: 3 },
+    ],
+  },
   {
     id: "autumn-harvest",
     name: "Autumn Harvest",
@@ -66,6 +84,32 @@ export const PRESETS: BouquetPreset[] = [
     ],
   },
   {
+    id: "cranberry-hearth",
+    name: "Cranberry Hearth",
+    description: "Deep red roses, dahlias and poppies tied with a ribbon",
+    vase: "ribbon",
+    flowers: [
+      { id: "rose", count: 4 },
+      { id: "dahlia", count: 3 },
+      { id: "poppy", count: 3 },
+      { id: "wheat", count: 2 },
+    ],
+  },
+  {
+    id: "fall-market",
+    name: "Fall Market",
+    description: "Sunflowers, marigolds and wheat wrapped in newsprint",
+    vase: "newspaper",
+    flowers: [
+      { id: "sunflower", count: 3 },
+      { id: "marigold", count: 3 },
+      { id: "wheat", count: 3 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
+
+  // Romantic
+  {
     id: "classic-romance",
     name: "Classic Romance",
     description: "Red roses with a cloud of baby's breath",
@@ -75,6 +119,80 @@ export const PRESETS: BouquetPreset[] = [
       { id: "babys-breath", count: 3 },
     ],
   },
+  {
+    id: "peony-blush",
+    name: "Peony Blush",
+    description: "Soft pink peonies and roses in lilac tissue",
+    vase: "tissue",
+    flowers: [
+      { id: "peony", count: 5 },
+      { id: "rose", count: 2 },
+      { id: "babys-breath", count: 3 },
+    ],
+  },
+  {
+    id: "grand-gesture",
+    name: "The Grand Gesture",
+    description: "Roses, peonies and tulips, filled to the brim",
+    vase: "ribbon",
+    flowers: [
+      { id: "rose", count: 5 },
+      { id: "peony", count: 4 },
+      { id: "tulip", count: 3 },
+      { id: "hydrangea", count: 2 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
+
+  // Garden & meadow
+  {
+    id: "hydrangea-dream",
+    name: "Hydrangea Dream",
+    description: "Cloudy blue hydrangeas with lavender in a glass vase",
+    vase: "glass",
+    flowers: [
+      { id: "hydrangea", count: 4 },
+      { id: "lavender", count: 4 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
+  {
+    id: "poppy-meadow",
+    name: "Poppy Meadow",
+    description: "Scarlet poppies and daisies in a painted pitcher",
+    vase: "pitcher",
+    flowers: [
+      { id: "poppy", count: 5 },
+      { id: "daisy", count: 4 },
+      { id: "wheat", count: 2 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
+  {
+    id: "spring-garden",
+    name: "Spring Garden",
+    description: "Tulips, peonies and daisies, fresh from the garden",
+    vase: "ribbon",
+    flowers: [
+      { id: "tulip", count: 5 },
+      { id: "peony", count: 2 },
+      { id: "daisy", count: 4 },
+      { id: "lavender", count: 2 },
+    ],
+  },
+  {
+    id: "lavender-fields",
+    name: "Lavender Fields",
+    description: "Calming lavender with soft white accents",
+    vase: "kraft",
+    flowers: [
+      { id: "lavender", count: 7 },
+      { id: "daisy", count: 3 },
+      { id: "babys-breath", count: 2 },
+    ],
+  },
+
+  // Sunny & simple
   {
     id: "sunny-side-up",
     name: "Sunny Side Up",
@@ -97,107 +215,28 @@ export const PRESETS: BouquetPreset[] = [
     ],
   },
   {
-    id: "lavender-fields",
-    name: "Lavender Fields",
-    description: "Calming lavender with soft white accents",
-    vase: "kraft",
-    flowers: [
-      { id: "lavender", count: 7 },
-      { id: "daisy", count: 3 },
-      { id: "babys-breath", count: 2 },
-    ],
-  },
-  {
-    id: "spring-garden",
-    name: "Spring Garden",
-    description: "Tulips, daisies and lavender, fresh from the garden",
-    vase: "ribbon",
-    flowers: [
-      { id: "tulip", count: 5 },
-      { id: "daisy", count: 4 },
-      { id: "lavender", count: 3 },
-      { id: "babys-breath", count: 2 },
-    ],
-  },
-  {
-    id: "grand-gesture",
-    name: "The Grand Gesture",
-    description: "A little of everything, filled to the brim",
-    vase: "ribbon",
-    flowers: [
-      { id: "rose", count: 5 },
-      { id: "tulip", count: 4 },
-      { id: "sunflower", count: 3 },
-      { id: "daisy", count: 3 },
-      { id: "lavender", count: 3 },
-      { id: "babys-breath", count: 2 },
-    ],
-  },
-  {
-    id: "market-morning",
-    name: "Market Morning",
-    description: "Fresh from the flower stall, wrapped in newsprint",
-    vase: "newspaper",
-    flowers: [
-      { id: "sunflower", count: 3 },
-      { id: "tulip", count: 3 },
-      { id: "daisy", count: 3 },
-      { id: "babys-breath", count: 2 },
-    ],
-  },
-  {
-    id: "farmhouse-jar",
-    name: "Farmhouse Jar",
-    description: "Daisies and lavender in a twine-tied mason jar",
-    vase: "mason",
-    flowers: [
-      { id: "daisy", count: 5 },
-      { id: "lavender", count: 3 },
-      { id: "babys-breath", count: 3 },
-    ],
-  },
-  {
-    id: "lilac-love",
-    name: "Lilac Love",
-    description: "Lavender and pink tulips in soft lilac tissue",
-    vase: "tissue",
-    flowers: [
-      { id: "lavender", count: 5 },
-      { id: "tulip", count: 4 },
-      { id: "babys-breath", count: 3 },
-    ],
-  },
-  {
-    id: "cottage-pitcher",
-    name: "Cottage Pitcher",
-    description: "A cottage-garden mix in a painted pitcher",
-    vase: "pitcher",
-    flowers: [
-      { id: "rose", count: 3 },
-      { id: "daisy", count: 4 },
-      { id: "tulip", count: 3 },
-      { id: "babys-breath", count: 2 },
-    ],
-  },
-  {
-    id: "picnic-basket",
-    name: "Picnic Basket",
-    description: "Sunflowers and daisies for a sunny afternoon",
-    vase: "basket",
-    flowers: [
-      { id: "sunflower", count: 4 },
-      { id: "daisy", count: 5 },
-      { id: "lavender", count: 3 },
-    ],
-  },
-  {
     id: "just-because",
     name: "Just Because",
-    description: "A small, sweet hello — no reason needed",
+    description: "Tulips, daisies and peonies — a sweet hello, no reason needed",
     vase: "newspaper",
     flowers: [
       { id: "tulip", count: 3 },
+      { id: "daisy", count: 3 },
+      { id: "peony", count: 2 },
       { id: "babys-breath", count: 2 },
+    ],
+  },
+
+  // Signature
+  {
+    id: "cjps-fave",
+    name: "CJP's Fave",
+    description: "Fourteen roses cloaked in white asters — the fullest bouquet there is",
+    vase: "ribbon",
+    // Fills the bouquet to the limit: asters tuck between the roses, the rest are roses.
+    flowers: [
+      { id: "rose", count: MAX_FLOWERS - 6 },
+      { id: "aster", count: 6 },
     ],
   },
 ];

@@ -8,7 +8,11 @@ export type FlowerId =
   | "chrysanthemum"
   | "marigold"
   | "dahlia"
-  | "wheat";
+  | "wheat"
+  | "peony"
+  | "poppy"
+  | "hydrangea"
+  | "aster";
 
 export type VaseStyle = "glass" | "ribbon" | "kraft" | "newspaper" | "tissue" | "mason" | "pitcher" | "basket";
 
