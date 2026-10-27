@@ -230,7 +230,7 @@ export const PRESETS: BouquetPreset[] = [
   // Signature
   {
     id: "cjps-fave",
-    name: "CJP's Fave",
+    name: "Davey's Choice",
     description: "Fourteen roses cloaked in white asters — the fullest bouquet there is",
     vase: "ribbon",
     // Fills the bouquet to the limit: asters tuck between the roses, the rest are roses.
