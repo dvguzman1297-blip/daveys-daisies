@@ -1,5 +1,6 @@
 "use server";
 
+import { RATE_LIMITED_MESSAGE, checkRateLimit } from "@/lib/rate-limit";
 import { MAX_VOICE_BYTES, voiceExtension } from "@/lib/voice";
 import { createVoiceUploadUrl, isVoiceStorageAvailable } from "@/lib/voice-storage";
 
@@ -11,7 +12,7 @@ export type CreateVoiceUploadResult =
  * Hands the browser a signed URL to upload one voice message to private storage.
  * Server Actions have small body limits, so the audio goes straight to Supabase;
  * the bucket itself enforces the size cap and the allowed audio types.
- * Like createBouquet this is publicly reachable: add rate limiting before a public launch.
+ * Like createBouquet this is publicly reachable, so it is rate limited per IP.
  */
 export async function createVoiceUpload(input: { mime: unknown; bytes: unknown }): Promise<CreateVoiceUploadResult> {
   const mime = typeof input?.mime === "string" ? input.mime : "";
@@ -23,6 +24,7 @@ export async function createVoiceUpload(input: { mime: unknown; bytes: unknown }
   if (!isVoiceStorageAvailable()) {
     return { ok: false, error: "Voice messages need Supabase storage to be set up." };
   }
+  if (!(await checkRateLimit("voice_upload"))) return { ok: false, error: RATE_LIMITED_MESSAGE };
   try {
     return { ok: true, ...(await createVoiceUploadUrl(mime)) };
   } catch (err) {

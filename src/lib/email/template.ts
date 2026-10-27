@@ -60,7 +60,7 @@ export function renderBouquetEmail({ recipientName, senderName, openUrl, blockUr
       <p style="margin:16px 0 0;font-size:13px;line-height:1.5;color:#6b625a;">Button not working? Copy this link into your browser:<br><a href="${esc(openUrl)}" style="color:#a84a5f;word-break:break-all;">${esc(openUrl)}</a></p>
     </td></tr>
     <tr><td align="center" style="padding:20px 12px 0;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6b625a;">
-      You got this because someone entered your email address on Davey&#39;s Daisies.<br>
+      You got this because someone entered your email address on Davey&#39;s Daisies. We don&#39;t verify who senders are, so the name above is whatever they typed.<br>
       Not for you, or don&#39;t want these? <a href="${esc(blockUrl)}" style="color:#6b625a;text-decoration:underline;">Block or report</a>
     </td></tr>
   </table>
@@ -76,7 +76,7 @@ ${noteText}
 Open your letter: ${openUrl}
 
 ---
-You got this because someone entered your email address on Davey's Daisies.
+You got this because someone entered your email address on Davey's Daisies. We don't verify who senders are, so the name above is whatever they typed.
 Not for you, or don't want these? Block or report: ${blockUrl}
 `;
 

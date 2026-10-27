@@ -2,6 +2,7 @@
 
 import { insertBouquet, validateBouquet } from "@/lib/bouquets";
 import { sendBouquetEmail } from "@/lib/email/send";
+import { RATE_LIMITED_MESSAGE, checkRateLimit } from "@/lib/rate-limit";
 import { voiceExists } from "@/lib/voice-storage";
 import { parseYouTubeId } from "@/lib/youtube";
 import { fetchYouTubeInfo } from "@/lib/youtube-oembed";
@@ -12,12 +13,12 @@ const UNPLAYABLE = "We couldn't find that video, or its owner doesn't allow it t
 /**
  * Creates a bouquet and returns its id (the share slug).
  * Note: Server Actions are publicly reachable POST endpoints. Anonymous creation
- * is intended here, so input is validated strictly; add rate limiting (e.g.
- * Vercel Firewall rules or Upstash) before a public launch.
+ * is intended here, so input is validated strictly and each IP is rate limited.
  */
 export async function createBouquet(input: CreateBouquetInput): Promise<CreateBouquetResult> {
   const result = validateBouquet(input);
   if (!result.ok) return result;
+  if (!(await checkRateLimit("create_bouquet"))) return { ok: false, error: RATE_LIMITED_MESSAGE };
   const { youtube, recipient_email, ...rest } = result.value;
 
   let clip = null;
@@ -64,6 +65,7 @@ export async function lookupYouTube(link: unknown): Promise<LookupYouTubeResult>
   }
   const videoId = parseYouTubeId(link);
   if (!videoId) return { ok: false, error: "That doesn't look like a YouTube link." };
+  if (!(await checkRateLimit("youtube_lookup"))) return { ok: false, error: RATE_LIMITED_MESSAGE };
 
   const info = await fetchYouTubeInfo(videoId);
   if (!info) return { ok: false, error: UNPLAYABLE };

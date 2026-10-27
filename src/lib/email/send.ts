@@ -1,6 +1,6 @@
 import "server-only";
-import { headers } from "next/headers";
 import { Resend } from "resend";
+import { clientIp } from "@/lib/rate-limit";
 import type { EmailOutcome } from "@/types/bouquet";
 import { maskEmail } from "./address";
 import { addBlock, countRecentSends, isBlocked, logSend, markEmailSent } from "./store";
@@ -25,12 +25,6 @@ const HOUR = 60 * 60 * 1000;
 
 const siteUrl = () => (process.env.SITE_URL ?? "").replace(/\/+$/, "");
 const isConfigured = () => !!process.env.RESEND_API_KEY && !!process.env.EMAIL_FROM && !!process.env.EMAIL_LINK_SECRET && !!siteUrl();
-
-/** The visitor's IP, from the proxy headers Vercel sets. Only ever stored as a keyed hash. */
-async function clientIp(): Promise<string> {
-  const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
-}
 
 export const blockLink = (bouquetId: string) => `${siteUrl()}/email/block/${bouquetId}?sig=${signBouquetId(bouquetId)}`;
 
